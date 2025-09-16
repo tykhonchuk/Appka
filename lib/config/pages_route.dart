@@ -1,6 +1,10 @@
 
 enum PagesRoute{
-  loginPage("/", "Log In Page");
+  welcomePage("/", "Welcome Page"),
+  loginPage("/login", "Log In Page"),
+  signupPage("/signup", "Sign Up Page"),
+
+  ;
 
   const PagesRoute(this.path, this.name);
   final String path;

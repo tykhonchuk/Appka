@@ -1,18 +1,23 @@
+import "package:appka/pages/signup_page.dart";
+import "package:appka/pages/welcome_page.dart";
+import "package:appka/config/pages_route.dart";
+import "package:appka/config/theme_dark.dart";
+import "package:appka/config/theme_light.dart";
+import "package:appka/pages/login_page.dart";
 import "package:flutter/material.dart";
 import "package:go_router/go_router.dart";
-import "config/pages_route.dart";
-import "config/theme_dark.dart";
-import "config/theme_light.dart";
-import "pages/login_page.dart";
 
 void main() {
   final routeBuilders = {
-    PagesRoute.loginPage.path: (context) => const LoginPage(),
+    PagesRoute.welcomePage.path: (context, state) => const WelcomePage(),
+    PagesRoute.loginPage.path: (context, state) => const LoginPage(),
+    PagesRoute.signupPage.path: (context, state) => const SignupPage(),
   };
   final goRoute = GoRouter(
+    initialLocation: PagesRoute.welcomePage.path,
     routes:
       PagesRoute.values.map((route){
-        return GoRoute(path: route.path, name: route.name); //dodac to jak beda gotowe cubity  builder: routeBuilders[route]!
+        return GoRoute(path: route.path, name: route.name, builder: routeBuilders[route.path]!);
       }).toList(),
   );
   runApp(
