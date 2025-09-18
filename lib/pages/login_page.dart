@@ -29,38 +29,40 @@ class _LoginPageState extends State<LoginPage> {
             );
           }
         },
-        child: BlocBuilder<LoginCubit, LoginState>(
-          builder: (context, state){
-            final cubit = context.read<LoginCubit>();
-
-            return Scaffold(
-              appBar: AppBar(
-                centerTitle: true,
-                title: Text("Login"),
-              ),
-              body: Padding(
-                padding: const EdgeInsets.all(24.0),
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    TextField(
-                      controller: _usernameController,
-                      decoration: const InputDecoration(
-                        labelText: "Login",
-                        border: OutlineInputBorder(),
-                      ),
-                    ),
-                    const SizedBox(height: 24),
-                    TextField(
-                      controller: _passwordController,
-                      obscureText: true,
-                      decoration: const InputDecoration(
-                        labelText: "Hasło",
-                        border: OutlineInputBorder(),
-                      ),
-                    ),
-                    const SizedBox(height: 24),
-                    ElevatedButton(
+        child: Scaffold(
+          appBar: AppBar(
+            centerTitle: true,
+             title: Text("Login"),
+          ),
+          body: Padding(
+            padding: const EdgeInsets.all(24.0),
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                TextField(
+                  controller: _usernameController,
+                  decoration: const InputDecoration(
+                    labelText: "Login",
+                    border: OutlineInputBorder(),
+                  ),
+                ),
+                const SizedBox(height: 24),
+                TextField(
+                  controller: _passwordController,
+                  obscureText: true,
+                  decoration: const InputDecoration(
+                    labelText: "Hasło",
+                    border: OutlineInputBorder(),
+                  ),
+                ),
+                const SizedBox(height: 24),
+                BlocBuilder<LoginCubit, LoginState>(
+                  builder: (context, state){
+                    final cubit = context.read<LoginCubit>();
+                    if (state is LoginLoading) {
+                      return const CircularProgressIndicator();
+                    }
+                    return ElevatedButton(
                       onPressed: (){
                         cubit.loginUser(
                           _usernameController.text,
@@ -68,12 +70,12 @@ class _LoginPageState extends State<LoginPage> {
                         );
                       },
                       child: const Text("Zaloguj się"),
-                    ),
-                  ],
-                )
-              ),
-            );
-          },
+                    );
+                  },
+                ),
+              ],
+            )
+          ),
         ),
       ),
     );
