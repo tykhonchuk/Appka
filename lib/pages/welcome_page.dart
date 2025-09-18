@@ -15,15 +15,16 @@ class WelcomePage extends StatelessWidget {
             child: ElevatedButton(
               child: const Text("Zaloguj się"),
               onPressed: (){
-                context.go(PagesRoute.loginPage.path);
+                context.push(PagesRoute.loginPage.path);
               },
             ),
           ),
+          const SizedBox(height: 8),
           Center(
-            child: ElevatedButton(
+            child: OutlinedButton(
               child: const Text("Zarejestruj się"),
               onPressed: (){
-                context.go(PagesRoute.signupPage.path);
+                context.push(PagesRoute.signupPage.path);
               },
             ),
           ),

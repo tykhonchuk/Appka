@@ -1,3 +1,4 @@
+import "package:appka/pages/home_page.dart";
 import "package:appka/pages/signup_page.dart";
 import "package:appka/pages/welcome_page.dart";
 import "package:appka/config/pages_route.dart";
@@ -12,6 +13,7 @@ void main() {
     PagesRoute.welcomePage.path: (context, state) => const WelcomePage(),
     PagesRoute.loginPage.path: (context, state) => const LoginPage(),
     PagesRoute.signupPage.path: (context, state) => const SignupPage(),
+    PagesRoute.homePage.path: (context, state) => const HomePage(),
   };
   final goRoute = GoRouter(
     initialLocation: PagesRoute.welcomePage.path,
