@@ -27,7 +27,7 @@ class LoginCubit extends Cubit<LoginState>{
     //   };
     //   //wyślij żądanie
     //   final response = await http.post(
-    //     Uri.parse('https://twojeapi.com/login'),
+    //     Uri.parse('https://127.0.0.1:8000/login'), //zamiast 127.0.0.1 użyj 10.0.2.2
     //     headers: {'Content-Type': 'application/json'},
     //     body: jsonEncode(body)
     //   );
