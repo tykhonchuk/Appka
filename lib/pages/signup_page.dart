@@ -1,6 +1,8 @@
+import "package:appka/config/pages_route.dart";
 import "package:appka/cubit/signup_cubit.dart";
 import "package:flutter/material.dart";
 import "package:flutter_bloc/flutter_bloc.dart";
+import "package:go_router/go_router.dart";
 
 class SignupPage extends StatefulWidget {
   const SignupPage({super.key});
@@ -21,9 +23,7 @@ class _SignupPageState extends State<SignupPage> {
       child: BlocListener<SignupCubit, SignupState>(
         listener: (context, state){
           if (state is SignupSuccess){
-            ScaffoldMessenger.of(context).showSnackBar(
-              const SnackBar(content: Text("Rejestracja zakończona pomyślnie!"))
-            );
+            context.go(PagesRoute.accountCreatedPage.path);
             //redirect
           } else if (state is SignupError){
             ScaffoldMessenger.of(context).showSnackBar(
