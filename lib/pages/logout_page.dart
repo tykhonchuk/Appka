@@ -1,13 +1,14 @@
+
 import "package:flutter/material.dart";
 
-class AddDocumentPage extends StatelessWidget {
-  const AddDocumentPage({super.key});
+class LogoutPage extends StatelessWidget {
+  const LogoutPage({super.key});
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text("Dodaj dokument"),
+        title: const Text("Wyloguj się"),
       ),
     );
   }

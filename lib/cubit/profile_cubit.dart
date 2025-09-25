@@ -21,9 +21,16 @@ class ProfileCubit extends Cubit<ProfileState>{
     }catch (e) {
       emit(ProfileError(message: "Nie udało się zmienić hasła: $e"));
     }
-    
-    
+  }
 
+  Future<void> deleteAccount() async {
+    emit(const ProfileLoading());
+    try{
+      //await api.deleteAccount();
+      emit(const ProfileSuccess());
+    }catch (e) {
+      emit(ProfileError(message: "Nie udało się usunąć konta: $e"));
+    }
   }
 
 }
