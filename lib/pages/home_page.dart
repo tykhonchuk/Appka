@@ -1,25 +1,69 @@
+import "package:appka/config/pages_route.dart";
 import "package:flutter/material.dart";
+import "package:go_router/go_router.dart";
 
-enum SampleItem { itemOne, itemTwo, itemThree }
+enum MenuActions { profileSettiings, logout }
 
 class HomePage extends StatelessWidget {
   const HomePage({super.key});
+  
+  void _confirmLogout(BuildContext context) {
+    showDialog(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: const Text("Potwierdzenie"),
+        content: const Text("Czy na pewno chcesz się wylogować?"),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(ctx).pop(),
+            child: const Text("Anuluj"),
+          ),
+          ElevatedButton(
+            style: ElevatedButton.styleFrom(
+              backgroundColor: Colors.red,
+            ),
+            onPressed: (){
+              Navigator.of(ctx).pop();
+              context.push(PagesRoute.loginPage.path);
+            },
+            child: const Text("Wyloguj"),
+          )
+        ],
+      ),
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
-    SampleItem? selectedItem;
-    return Scaffold(
-      appBar: AppBar(centerTitle: true, title: Text("Home"),),
-      body: Center(
-        child: PopupMenuButton<SampleItem>(
-          initialValue: selectedItem,
 
-          itemBuilder: (BuildContext context) => <PopupMenuEntry<SampleItem>>[
-            const PopupMenuItem<SampleItem>(value: SampleItem.itemOne, child: Text('Item 1')),
-            const PopupMenuItem<SampleItem>(value: SampleItem.itemTwo, child: Text('Item 2')),
-            const PopupMenuItem<SampleItem>(value: SampleItem.itemThree, child: Text('Item 3')),
-          ],
-        ),
+    return Scaffold(
+      appBar: AppBar(
+        centerTitle: true,
+        title: Text("Home"),
+        actions:[
+          PopupMenuButton<MenuActions>(
+            onSelected: (value) {
+              switch (value) {
+                case MenuActions.profileSettiings:
+                  context.push(PagesRoute.profilePage.path);
+                  break;
+                case MenuActions.logout:
+                  _confirmLogout(context);
+                  break;
+              }
+            },
+            itemBuilder: (BuildContext context) => <PopupMenuEntry<MenuActions>>[
+              const PopupMenuItem<MenuActions>(
+                value: MenuActions.profileSettiings,
+                child: Text('Ustawienia profilu')
+              ),
+              const PopupMenuItem<MenuActions>(
+                value: MenuActions.logout,
+                child: Text('Wyloguj się')
+              ),
+            ]
+          )
+        ]
       ),
     );
   }
