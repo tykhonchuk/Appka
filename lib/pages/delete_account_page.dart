@@ -50,7 +50,7 @@ class DeleteAccountPage extends StatelessWidget {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            const Icon(Icons.warning, color: Colors.red, size: 80),
+            const Icon(Icons.warning, color: Colors.red, size: 40),
             const SizedBox(height: 16),
             const Text(
               "Uwaga!\nUsinięcie konta spowoduje trwałą utratę wszystkich danych.",
@@ -62,6 +62,7 @@ class DeleteAccountPage extends StatelessWidget {
               style: ElevatedButton.styleFrom(
                 backgroundColor: Colors.red,
                 minimumSize: const Size(double.infinity, 48),
+                foregroundColor: Colors.white
               ),
               onPressed: () => _showConfirmDialog(context),
               child: const Text("Usuń konto"),

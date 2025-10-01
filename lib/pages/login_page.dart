@@ -32,7 +32,13 @@ class _LoginPageState extends State<LoginPage> {
         child: Scaffold(
           appBar: AppBar(
             centerTitle: true,
-             title: Text("Login"),
+            title: Text("Login"),
+            leading: IconButton(
+              icon: const Icon(Icons.arrow_back),
+              onPressed: () {
+                context.go(PagesRoute.welcomePage.path);
+              },
+            ),
           ),
           body: Padding(
             padding: const EdgeInsets.all(24.0),

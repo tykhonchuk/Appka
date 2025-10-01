@@ -21,6 +21,7 @@ class HomePage extends StatelessWidget {
           ElevatedButton(
             style: ElevatedButton.styleFrom(
               backgroundColor: Colors.red,
+              foregroundColor: Colors.white
             ),
             onPressed: (){
               Navigator.of(ctx).pop();

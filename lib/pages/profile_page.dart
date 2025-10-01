@@ -37,26 +37,26 @@ class _ProfilePageState extends State<ProfilePage> {
             centerTitle: true,
             title: const Text("Profile"),
           ),
-          body: Padding(
-            padding: const EdgeInsets.all(24.0),
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                FloatingActionButton(
+          body: Column(
+            children: [
+              Center(
+                child: ElevatedButton(
                   child: const Text("Zmień hasło"),
                   onPressed: (){
                     context.push(PagesRoute.changePasswordPage.path);
                   }
                 ),
-                FloatingActionButton(
-                    child: const Text("Usuń konto"),
-                    onPressed: (){
-                      context.push(PagesRoute.deletePage.path);
-                    }
-                )
-              ],
-            )
-          ),
+              ),
+              Center(
+                child: ElevatedButton(
+                  child: const Text("Usuń konto"),
+                  onPressed: (){
+                    context.push(PagesRoute.deletePage.path);
+                  }
+                ),
+              )
+            ],
+          )
         ),
       )
     );
