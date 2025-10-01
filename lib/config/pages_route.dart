@@ -8,7 +8,6 @@ enum PagesRoute{
   profilePage("/profile", "Profile Page"),
   changePasswordPage("/change-password", "Change Password Page"),
   addDocumentPage("/add-document", "Add Document Page"),
-  logoutPage("/logout", "Logout Page"),
   deletePage("/delete", "Delete Account Page"),
 
   ;

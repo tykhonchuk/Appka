@@ -3,7 +3,6 @@ import "package:appka/pages/add_document_page.dart";
 import "package:appka/pages/change_password_page.dart";
 import "package:appka/pages/delete_account_page.dart";
 import "package:appka/pages/home_page.dart";
-import "package:appka/pages/logout_page.dart";
 import "package:appka/pages/profile_page.dart";
 import "package:appka/pages/signup_page.dart";
 import "package:appka/pages/welcome_page.dart";
@@ -23,7 +22,6 @@ void main() {
     PagesRoute.accountCreatedPage.path: (context, state) => const AccountCreatedPage(),
     PagesRoute.profilePage.path: (context, state) => const ProfilePage(),
     PagesRoute.changePasswordPage.path: (context, state) => const ChangePasswordPage(),
-    PagesRoute.logoutPage.path: (context, state) => const LogoutPage(),
     PagesRoute.deletePage.path: (context, state) => const DeleteAccountPage(),
     PagesRoute.addDocumentPage.path: (context, state) => const AddDocumentPage(),
 
