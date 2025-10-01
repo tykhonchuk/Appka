@@ -1,5 +1,4 @@
 import "dart:convert";
-
 import "package:flutter_bloc/flutter_bloc.dart";
 import "package:http/http.dart" as http;
 
@@ -13,40 +12,41 @@ class LoginCubit extends Cubit<LoginState>{
 
     await Future.delayed(const Duration(seconds: 1)); // symulacja ładowania
 
-    if (login == "user" && password == "1234") {
-      emit(const LoginSuccess(username: "user", token: "fake_token"));
-    } else {
-      emit(const LoginError(message: "Nieprawidłowy login lub hasło"));
-    }
-
-    // try{
-    //   //body żądania
-    //   final body = {
-    //     "username": login,
-    //     "password": password
-    //   };
-    //   //wyślij żądanie
-    //   final response = await http.post(
-    //     Uri.parse('https://127.0.0.1:8000/login'), //zamiast 127.0.0.1 użyj 10.0.2.2
-    //     headers: {'Content-Type': 'application/json'},
-    //     body: jsonEncode(body)
-    //   );
-    //   //sprawdzamy status odpowiedzi
-    //   if (response.statusCode == 200){
-    //     final data = jsonDecode(response.body);
-    //     final token = data['token'];
-    //     final username = data['username'];
-    //   } else {
-    //     emit(LoginError(message: "Nieprawidłowy login lub hasło"));
-    //   }
-    //
-    //
-    //
-    //
-    //
-    // } catch (e){
-    //   emit(LoginError(error: e, message: "Błąd połaczenia z serwerem"));
+    // if (login == "user" && password == "1234") {
+    //   emit(const LoginSuccess(username: "user", token: "fake_token"));
+    // } else {
+    //   emit(const LoginError(message: "Nieprawidłowy login lub hasło"));
     // }
+
+    try{
+      //body żądania
+      final body = {
+        "username": login,
+        "password": password
+      };
+      //wyślij żądanie
+      final response = await http.post(
+          Uri.parse('http://10.0.2.2:8000/login'),
+          headers: {'Content-Type': 'application/json'},
+          body: jsonEncode(body)
+      );
+
+      if (response.statusCode == 200) {
+        final data = jsonDecode(response.body);
+        final token = data['access_token'];
+        emit(LoginSuccess(username: login, token: token));
+      } else {
+        emit(LoginError(message: "Nieprawidłowy login lub hasło"));
+      }
+
+
+
+
+
+
+    } catch (e){
+      emit(LoginError(error: e, message: "Błąd połaczenia z serwerem"));
+    }
   }
 
   void emitError(String message){
