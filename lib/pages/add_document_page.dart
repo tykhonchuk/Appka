@@ -9,6 +9,24 @@ class AddDocumentPage extends StatelessWidget {
       appBar: AppBar(
         title: const Text("Dodaj dokument"),
       ),
+      body: Column(
+        children: [
+          TextField(
+            decoration: const InputDecoration(
+              labelText: "Tytuł",
+            ),
+          ),
+          TextField(
+            decoration: const InputDecoration(
+              labelText: "Opis",
+            ),
+          ),
+          ElevatedButton(
+            onPressed: (){},
+            child: const Text("Dodaj dokument")
+          )
+        ],
+      ),
     );
   }
 }

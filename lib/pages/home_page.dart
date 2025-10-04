@@ -2,11 +2,18 @@ import "package:appka/config/pages_route.dart";
 import "package:flutter/material.dart";
 import "package:go_router/go_router.dart";
 
-enum MenuActions { profileSettiings, logout }
+enum MenuActions { profileSettings, logout }
 
-class HomePage extends StatelessWidget {
+class HomePage extends StatefulWidget {
   const HomePage({super.key});
-  
+
+  @override
+  State<HomePage> createState() => _HomePageState();
+}
+
+class _HomePageState extends State<HomePage> {
+  List<String> items = [];
+
   void _confirmLogout(BuildContext context) {
     showDialog(
       context: context,
@@ -21,14 +28,14 @@ class HomePage extends StatelessWidget {
           ElevatedButton(
             style: ElevatedButton.styleFrom(
               backgroundColor: Colors.red,
-              foregroundColor: Colors.white
+              foregroundColor: Colors.white,
             ),
-            onPressed: (){
+            onPressed: () {
               Navigator.of(ctx).pop();
               context.push(PagesRoute.loginPage.path);
             },
             child: const Text("Wyloguj"),
-          )
+          ),
         ],
       ),
     );
@@ -36,16 +43,15 @@ class HomePage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-
     return Scaffold(
       appBar: AppBar(
         centerTitle: true,
-        title: Text("Home"),
-        actions:[
+        title: const Text("Home"),
+        actions: [
           PopupMenuButton<MenuActions>(
             onSelected: (value) {
               switch (value) {
-                case MenuActions.profileSettiings:
+                case MenuActions.profileSettings:
                   context.push(PagesRoute.profilePage.path);
                   break;
                 case MenuActions.logout:
@@ -53,18 +59,41 @@ class HomePage extends StatelessWidget {
                   break;
               }
             },
-            itemBuilder: (BuildContext context) => <PopupMenuEntry<MenuActions>>[
+            itemBuilder: (BuildContext context) =>
+            <PopupMenuEntry<MenuActions>>[
               const PopupMenuItem<MenuActions>(
-                value: MenuActions.profileSettiings,
-                child: Text('Ustawienia profilu')
+                value: MenuActions.profileSettings,
+                child: Text('Ustawienia profilu'),
               ),
               const PopupMenuItem<MenuActions>(
                 value: MenuActions.logout,
-                child: Text('Wyloguj się')
+                child: Text('Wyloguj się'),
               ),
-            ]
+            ],
           )
-        ]
+        ],
+      ),
+      body: items.isNotEmpty
+          ? ListView.builder(
+        itemCount: items.length,
+        itemBuilder: (BuildContext context, int index) {
+          return ListTile(
+            leading: const Icon(Icons.description),
+            title: Text(items[index]),
+          );
+        },
+      )
+          : const Center(
+        child: Text(
+          'Brak dokumentów',
+          style: TextStyle(fontSize: 18, color: Colors.grey),
+        ),
+      ),
+      floatingActionButton: FloatingActionButton(
+        onPressed: () {
+          context.go(PagesRoute.addDocumentPage.path);
+        },
+        child: const Icon(Icons.add),
       ),
     );
   }
