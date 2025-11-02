@@ -13,13 +13,12 @@ class ProfileLoading extends ProfileState {
 }
 
 class ProfileSuccess extends ProfileState {
-  const ProfileSuccess();
+  const ProfileSuccess([this.token]);
+  final String? token;
 }
 
 class ProfileError extends ProfileState {
   const ProfileError({this.error, this.message});
-
   final Object? error;
   final String? message;
 }
-

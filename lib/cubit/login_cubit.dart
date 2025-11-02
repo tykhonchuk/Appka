@@ -1,6 +1,8 @@
 import "dart:convert";
 import "package:flutter_bloc/flutter_bloc.dart";
 import "package:http/http.dart" as http;
+import 'package:shared_preferences/shared_preferences.dart';
+
 
 part "login_state.dart";
 
@@ -34,6 +36,9 @@ class LoginCubit extends Cubit<LoginState>{
       if (response.statusCode == 200) {
         final data = jsonDecode(response.body);
         final token = data['access_token'];
+        //zapisz token do pamięci urządzenia
+        final prefs = await SharedPreferences.getInstance();
+        await prefs.setString('access_token', token);
         emit(LoginSuccess(username: login, token: token));
       } else {
         emit(LoginError(message: "Nieprawidłowy login lub hasło"));

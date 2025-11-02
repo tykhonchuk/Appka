@@ -1,36 +1,89 @@
+import "dart:convert";
 import "package:flutter_bloc/flutter_bloc.dart";
+import "package:http/http.dart" as http;
+import "package:shared_preferences/shared_preferences.dart";
 
 part "profile_state.dart";
 
-class ProfileCubit extends Cubit<ProfileState>{
+class ProfileCubit extends Cubit<ProfileState> {
   ProfileCubit() : super(const ProfileInitial());
 
-  Future<void> changePassword(String oldPassword, String newPassword, String confirmNewPassword) async {
-    if (newPassword != confirmNewPassword){
-      emit(ProfileError(message: "Hasło się nie zgadzają!"));
+  /// Pobiera zapisany token z pamięci urządzenia
+  Future<String?> _getToken() async {
+    final prefs = await SharedPreferences.getInstance();
+    return prefs.getString('access_token');
+  }
+
+  Future<void> changePassword(
+      String oldPassword, String newPassword, String confirmNewPassword) async {
+    if (newPassword != confirmNewPassword) {
+      emit(const ProfileError(message: "Hasła się nie zgadzają!"));
       return;
     }
-    if (newPassword.length < 8){
-      emit(ProfileError(message: "Hasło musi mieć co najmniej 8 znaków!"));
+    if (newPassword.length < 8) {
+      emit(const ProfileError(message: "Hasło musi mieć co najmniej 8 znaków!"));
       return;
     }
+
     emit(const ProfileLoading());
-    try{
-      //await api.changePassword(oldPassword, newPassword);
-      emit(const ProfileSuccess());
-    }catch (e) {
-      emit(ProfileError(message: "Nie udało się zmienić hasła: $e"));
+
+    try {
+      final token = await _getToken();
+      if (token == null) {
+        emit(const ProfileError(message: "Brak tokena – zaloguj się ponownie."));
+        return;
+      }
+
+      final url = Uri.parse('http://10.0.2.2:8000/changepassword');
+      final response = await http.post(
+        url,
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': 'Bearer $token',
+        },
+        body: jsonEncode({
+          'old_password': oldPassword,
+          'new_password': newPassword,
+        }),
+      );
+
+      if (response.statusCode == 200) {
+        emit(const ProfileSuccess());
+      } else {
+        final data = jsonDecode(response.body);
+        emit(ProfileError(message: data['detail'] ?? "Nie udało się zmienić hasła."));
+      }
+    } catch (e) {
+      emit(ProfileError(message: "Błąd podczas zmiany hasła: $e"));
     }
   }
 
   Future<void> deleteAccount() async {
     emit(const ProfileLoading());
-    try{
-      //await api.deleteAccount();
-      emit(const ProfileSuccess());
-    }catch (e) {
-      emit(ProfileError(message: "Nie udało się usunąć konta: $e"));
+    try {
+      final token = await _getToken();
+      if (token == null) {
+        emit(const ProfileError(message: "Brak tokena – zaloguj się ponownie."));
+        return;
+      }
+
+      final url = Uri.parse('http://10.0.2.2:8000/deleteaccount');
+      final response = await http.delete(
+        url,
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': 'Bearer $token',
+        },
+      );
+
+      if (response.statusCode == 200) {
+        emit(const ProfileSuccess());
+      } else {
+        final data = jsonDecode(response.body);
+        emit(ProfileError(message: data['detail'] ?? "Nie udało się usunąć konta."));
+      }
+    } catch (e) {
+      emit(ProfileError(message: "Błąd podczas usuwania konta: $e"));
     }
   }
-
 }
