@@ -67,7 +67,7 @@ class ProfileCubit extends Cubit<ProfileState> {
         return;
       }
 
-      final url = Uri.parse('http://10.0.2.2:8000/deleteaccount');
+      final url = Uri.parse('http://10.0.2.2:8000/delete-account');
       final response = await http.delete(
         url,
         headers: {
@@ -76,7 +76,11 @@ class ProfileCubit extends Cubit<ProfileState> {
         },
       );
 
-      if (response.statusCode == 200) {
+      if (response.statusCode == 200 || response.statusCode == 204) {
+        //delete token from memory
+        final prefs = await SharedPreferences.getInstance();
+        await prefs.remove('access_token');
+
         emit(const ProfileSuccess());
       } else {
         final data = jsonDecode(response.body);

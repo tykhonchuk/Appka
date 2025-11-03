@@ -1,5 +1,7 @@
 import "package:appka/config/pages_route.dart";
+import "package:appka/cubit/profile_cubit.dart";
 import "package:flutter/material.dart";
+import "package:flutter_bloc/flutter_bloc.dart";
 import "package:go_router/go_router.dart";
 
 class DeleteAccountPage extends StatelessWidget {
@@ -29,6 +31,7 @@ class DeleteAccountPage extends StatelessWidget {
               ScaffoldMessenger.of(context).showSnackBar(
                 const SnackBar(content: Text("Konto zostało usunięte")),
               );
+              context.read<ProfileCubit>().deleteAccount();
               // np. przekierowanie na stronę powitalną
               context.go(PagesRoute.welcomePage.path);
             },
