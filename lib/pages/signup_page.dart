@@ -1,3 +1,5 @@
+import "dart:io";
+
 import "package:appka/config/pages_route.dart";
 import "package:appka/cubit/signup_cubit.dart";
 import "package:flutter/material.dart";
@@ -23,8 +25,24 @@ class _SignupPageState extends State<SignupPage> {
       child: BlocListener<SignupCubit, SignupState>(
         listener: (context, state){
           if (state is SignupSuccess){
-            context.go(PagesRoute.accountCreatedPage.path);
-            //redirect
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(
+                content: const Text("Konto zostało utworzone pomyślnie!"),
+                action: SnackBarAction(
+                  label: 'Zaloguj się',
+                  onPressed: () => context.go(PagesRoute.loginPage.path),
+                ),
+                duration: const Duration(seconds: 5), // opcjonalnie
+              ),
+            ); //olha@gmail.com Q1234567
+            // ScaffoldMessenger.of(context).showSnackBar(
+            //     SnackBar(content: Text("Konto zostało utworzone pomyślnie!"))
+            // );
+            //
+            // //redirect po 2 sekundach
+            // Future.delayed(const Duration(seconds: 2), () {
+            //   context.go(PagesRoute.loginPage.path);
+            // });
           } else if (state is SignupError){
             ScaffoldMessenger.of(context).showSnackBar(
               SnackBar(content: Text(state.message ?? "Błąd rejestracji!"))
