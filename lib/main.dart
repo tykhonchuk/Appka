@@ -10,7 +10,9 @@ import "package:appka/config/pages_route.dart";
 import "package:appka/config/theme_dark.dart";
 import "package:appka/config/theme_light.dart";
 import "package:appka/pages/login_page.dart";
+import 'package:appka/cubit/profile_cubit.dart';
 import "package:flutter/material.dart";
+import "package:flutter_bloc/flutter_bloc.dart";
 import "package:go_router/go_router.dart";
 
 void main() {
@@ -42,10 +44,13 @@ void main() {
       }).toList(),
   );
   runApp(
-    MaterialApp.router(
-      routerConfig: goRoute,
-      theme: themeLight,
-      darkTheme: themeDark,
+    BlocProvider(
+      create: (_) => ProfileCubit(), // 👈 dostarczenie cubita
+      child: MaterialApp.router(
+        routerConfig: goRoute,
+        theme: themeLight,
+        darkTheme: themeDark,
+      ),
     ),
   );
 }

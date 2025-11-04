@@ -12,28 +12,25 @@ class DeleteAccountPage extends StatelessWidget {
       context: context,
       builder: (ctx) => AlertDialog(
         title: const Text("Potwierdzenie"),
-        content: const Text(
-            "Czy na pewno chcesz usunąć konto?\n"
-                "Tej operacji nie można cofnąć!"
-        ),
+        content: const Text("Czy na pewno chcesz usunąć konto?\nTej operacji nie można cofnąć!"),
         actions: [
           TextButton(
             onPressed: () => Navigator.of(ctx).pop(),
             child: const Text("Anuluj"),
           ),
           ElevatedButton(
-            style: ElevatedButton.styleFrom(
-              backgroundColor: Colors.red,
-            ),
+            style: ElevatedButton.styleFrom(backgroundColor: Colors.red),
             onPressed: () {
-              Navigator.of(ctx).pop(); // zamyka dialog
-              // 👉 tutaj dodaj logikę usuwania konta (API / baza danych)
-              ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(content: Text("Konto zostało usunięte")),
-              );
+              Navigator.of(ctx).pop();
               context.read<ProfileCubit>().deleteAccount();
-              // np. przekierowanie na stronę powitalną
-              context.go(PagesRoute.welcomePage.path);
+              ScaffoldMessenger.of(context).showSnackBar(
+                const SnackBar(
+                  content: Text("Konto zostało pomyślnie usunięte."),
+                  backgroundColor: Colors.redAccent,
+                  duration: Duration(seconds: 2),
+                ),
+              );
+                context.go(PagesRoute.welcomePage.path);
             },
             child: const Text("Usuń"),
           ),
@@ -45,9 +42,7 @@ class DeleteAccountPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text("Usuń konto"),
-      ),
+      appBar: AppBar(title: const Text("Usuń konto")),
       body: Padding(
         padding: const EdgeInsets.all(16),
         child: Column(
@@ -56,7 +51,7 @@ class DeleteAccountPage extends StatelessWidget {
             const Icon(Icons.warning, color: Colors.red, size: 40),
             const SizedBox(height: 16),
             const Text(
-              "Uwaga!\nUsinięcie konta spowoduje trwałą utratę wszystkich danych.",
+              "Uwaga!\nUsunięcie konta spowoduje trwałą utratę wszystkich danych.",
               textAlign: TextAlign.center,
               style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
             ),
@@ -65,7 +60,7 @@ class DeleteAccountPage extends StatelessWidget {
               style: ElevatedButton.styleFrom(
                 backgroundColor: Colors.red,
                 minimumSize: const Size(double.infinity, 48),
-                foregroundColor: Colors.white
+                foregroundColor: Colors.white,
               ),
               onPressed: () => _showConfirmDialog(context),
               child: const Text("Usuń konto"),
@@ -78,9 +73,10 @@ class DeleteAccountPage extends StatelessWidget {
               ),
               child: const Text("Anuluj"),
             ),
-            ]
+          ],
         ),
       ),
     );
   }
 }
+
