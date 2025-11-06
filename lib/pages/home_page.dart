@@ -1,8 +1,7 @@
-import "package:appka/config/pages_route.dart";
-import "package:flutter/material.dart";
-import "package:go_router/go_router.dart";
-
-enum MenuActions { profileSettings, logout }
+import 'package:flutter_speed_dial/flutter_speed_dial.dart';
+import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
+import 'package:appka/config/pages_route.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -13,6 +12,24 @@ class HomePage extends StatefulWidget {
 
 class _HomePageState extends State<HomePage> {
   List<String> items = [];
+
+  void _pickImageFromCamera(BuildContext context) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(content: Text("📸 Otwieranie aparatu...")),
+    );
+  }
+
+  void _pickImageFromGallery(BuildContext context) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(content: Text("🖼️ Otwieranie galerii...")),
+    );
+  }
+
+  void _pickFile(BuildContext context) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(content: Text("📁 Wybieranie pliku...")),
+    );
+  }
 
   void _confirmLogout(BuildContext context) {
     showDialog(
@@ -45,55 +62,74 @@ class _HomePageState extends State<HomePage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        centerTitle: true,
         title: const Text("Home"),
+        centerTitle: true,
         actions: [
-          PopupMenuButton<MenuActions>(
+          PopupMenuButton(
             onSelected: (value) {
-              switch (value) {
-                case MenuActions.profileSettings:
-                  context.push(PagesRoute.profilePage.path);
-                  break;
-                case MenuActions.logout:
-                  _confirmLogout(context);
-                  break;
-              }
+              if (value == "profile") context.push(PagesRoute.profilePage.path);
+              if (value == "logout") _confirmLogout(context);
             },
-            itemBuilder: (BuildContext context) =>
-            <PopupMenuEntry<MenuActions>>[
-              const PopupMenuItem<MenuActions>(
-                value: MenuActions.profileSettings,
-                child: Text('Ustawienia profilu'),
-              ),
-              const PopupMenuItem<MenuActions>(
-                value: MenuActions.logout,
-                child: Text('Wyloguj się'),
-              ),
+            itemBuilder: (context) => const [
+              PopupMenuItem(value: "profile", child: Text("Ustawienia profilu")),
+              PopupMenuItem(value: "logout", child: Text("Wyloguj się")),
             ],
-          )
+          ),
         ],
       ),
       body: items.isNotEmpty
           ? ListView.builder(
         itemCount: items.length,
-        itemBuilder: (BuildContext context, int index) {
-          return ListTile(
-            leading: const Icon(Icons.description),
-            title: Text(items[index]),
-          );
-        },
+        itemBuilder: (_, index) => ListTile(
+          leading: const Icon(Icons.description),
+          title: Text(items[index]),
+        ),
       )
           : const Center(
         child: Text(
-          'Brak dokumentów',
+          "Brak dokumentów",
           style: TextStyle(fontSize: 18, color: Colors.grey),
         ),
       ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: () {
-          context.go(PagesRoute.addDocumentPage.path);
-        },
-        child: const Icon(Icons.add),
+
+      floatingActionButton: SpeedDial(
+        icon: Icons.add,
+        activeIcon: Icons.close,
+        backgroundColor: Colors.blueAccent,
+        foregroundColor: Colors.white,
+        spacing: 10,
+        overlayOpacity: 0.4,
+        overlayColor: Colors.black,
+        curve: Curves.easeInOutCubic,
+        childrenButtonSize: const Size(60, 60),
+        elevation: 8,
+
+        children: [
+          SpeedDialChild(
+            child: const Icon(Icons.camera_alt),
+            backgroundColor: Colors.grey.shade200,
+            foregroundColor: Colors.blueGrey.shade800,
+            //label: "Zrób zdjęcie",
+            //labelStyle: const TextStyle(fontSize: 16),
+            onTap: () => _pickImageFromCamera(context),
+          ),
+          SpeedDialChild(
+            child: const Icon(Icons.photo_library),
+            backgroundColor: Colors.grey.shade200,
+            foregroundColor: Colors.teal.shade700,
+            //label: "Z galerii",
+            //labelStyle: const TextStyle(fontSize: 16),
+            onTap: () => _pickImageFromGallery(context),
+          ),
+          SpeedDialChild(
+            child: const Icon(Icons.attach_file),
+            backgroundColor: Colors.grey.shade200,
+            foregroundColor: Colors.deepPurple.shade400,
+            //label: "Z plików",
+            labelStyle: const TextStyle(fontSize: 16),
+            onTap: () => _pickFile(context),
+          ),
+        ],
       ),
     );
   }
