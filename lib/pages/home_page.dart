@@ -2,6 +2,13 @@ import 'package:flutter_speed_dial/flutter_speed_dial.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:appka/config/pages_route.dart';
+import 'package:camera/camera.dart';
+import 'package:image_picker/image_picker.dart';
+import 'package:file_picker/file_picker.dart';
+import 'dart:io';
+
+import 'camera_page.dart';
+
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -13,23 +20,102 @@ class HomePage extends StatefulWidget {
 class _HomePageState extends State<HomePage> {
   List<String> items = [];
 
-  void _pickImageFromCamera(BuildContext context) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text("📸 Otwieranie aparatu...")),
+  CameraController? _controller;
+  late List<CameraDescription> _cameras;
+
+  @override
+  void initState() {
+    super.initState();
+    _initCamera();
+  }
+
+  Future<void> _initCamera() async {
+    _cameras = await availableCameras();
+    if (_cameras.isNotEmpty) {
+      _controller = CameraController(_cameras.first, ResolutionPreset.medium);
+      await _controller!.initialize();
+      setState(() {});
+    }
+  }
+
+  Future<void> _pickImageFromCamera(BuildContext context) async {
+    if (_cameras.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text("❌ Brak dostępnej kamery")),
+      );
+      return;
+    }
+
+    await Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (_) => CameraScreen(
+          camera: _cameras.first,
+          onImageTaken: (path) {
+            setState(() {
+              items.add(path);
+            });
+            ScaffoldMessenger.of(context).showSnackBar(
+              const SnackBar(content: Text("✅ Zdjęcie zapisane!")),
+            );
+          },
+        ),
+      ),
     );
   }
 
-  void _pickImageFromGallery(BuildContext context) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text("🖼️ Otwieranie galerii...")),
-    );
+
+  Future<void> _pickImageFromGallery(BuildContext context) async {
+    final ImagePicker picker = ImagePicker();
+
+    try {
+      final XFile? image = await picker.pickImage(source: ImageSource.gallery);
+
+      if (image == null) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text("❌ Nie wybrano zdjęcia")),
+        );
+        return;
+      }
+
+      setState(() {
+        items.add(image.path);
+      });
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text("✅ Zdjęcie dodane z galerii")),
+      );
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text("Błąd podczas wyboru zdjęcia: $e")),
+      );
+    }
   }
 
-  void _pickFile(BuildContext context) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text("📁 Wybieranie pliku...")),
+
+  Future<void> _pickFile(BuildContext context) async {
+    final result = await FilePicker.platform.pickFiles(
+      type: FileType.custom,
+      allowedExtensions: ['pdf'],
     );
+
+    if (result != null && result.files.isNotEmpty) {
+      final file = File(result.files.single.path!);
+
+      setState(() {
+        items.add(file.path);
+      });
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text("✅ Plik PDF dodany")),
+      );
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text("❌ Nie wybrano pliku")),
+      );
+    }
   }
+
 
   void _confirmLogout(BuildContext context) {
     showDialog(
@@ -80,10 +166,27 @@ class _HomePageState extends State<HomePage> {
       body: items.isNotEmpty
           ? ListView.builder(
         itemCount: items.length,
-        itemBuilder: (_, index) => ListTile(
-          leading: const Icon(Icons.description),
-          title: Text(items[index]),
-        ),
+          itemBuilder: (_, index) {
+            final path = items[index];
+            final isImage = path.toLowerCase().endsWith('.jpg') ||
+                path.toLowerCase().endsWith('.jpeg') ||
+                path.toLowerCase().endsWith('.png');
+
+            return ListTile(
+              leading: isImage
+                  ? Image.file(
+                File(path),
+                width: 50,
+                height: 50,
+                fit: BoxFit.cover,
+              )
+                  : const Icon(Icons.picture_as_pdf, color: Colors.redAccent),
+              title: Text(
+                path.split('/').last, // pokazuje tylko nazwę pliku
+                style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w500),
+              ),
+            );
+          },
       )
           : const Center(
         child: Text(
