@@ -131,6 +131,13 @@ class _ProfilePageState extends State<ProfilePage> {
                     bottomLeft: Radius.circular(30),
                     bottomRight: Radius.circular(30),
                   ),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.blueAccent.withOpacity(0.3),
+                      offset: const Offset(0, 5),
+                      blurRadius: 10,
+                    ),
+                  ],
                 ),
                 child: Column(
                   children: [

@@ -16,7 +16,6 @@ class _LoginPageState extends State<LoginPage> {
 
   @override
   Widget build(BuildContext context) {
-
     return BlocProvider(
       create: (_) => LoginCubit(),
       child: BlocListener<LoginCubit, LoginState>(
@@ -30,57 +29,147 @@ class _LoginPageState extends State<LoginPage> {
           }
         },
         child: Scaffold(
-          appBar: AppBar(
-            centerTitle: true,
-            title: Text("Login"),
-            leading: IconButton(
-              icon: const Icon(Icons.arrow_back),
-              onPressed: () {
-                context.go(PagesRoute.welcomePage.path);
-              },
-            ),
-          ),
-          body: Padding(
-            padding: const EdgeInsets.all(24.0),
+          body: SingleChildScrollView(
             child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                TextField(
-                  controller: _usernameController,
-                  decoration: const InputDecoration(
-                    labelText: "E-mail",
-                    border: OutlineInputBorder(),
+                // Gradientowy nagłówek
+                Container(
+                  width: double.infinity,
+                  padding: const EdgeInsets.symmetric(vertical: 40, horizontal: 20),
+                  decoration: BoxDecoration(
+                    gradient: LinearGradient(
+                      colors: [Colors.blueAccent.shade700, Colors.blueAccent.shade200],
+                      begin: Alignment.topCenter,
+                      end: Alignment.bottomCenter,
+                    ),
+                    borderRadius: const BorderRadius.only(
+                      bottomLeft: Radius.circular(30),
+                      bottomRight: Radius.circular(30),
+                    ),
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.blueAccent.withOpacity(0.3),
+                        offset: const Offset(0, 5),
+                        blurRadius: 10,
+                      ),
+                    ],
+                  ),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: const [
+                      Text(
+                        "Cześć!",
+                        style: TextStyle(
+                          color: Colors.white,
+                          fontSize: 28,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                      SizedBox(height: 8),
+                      Text(
+                        "Miło Cię widzieć ponownie",
+                        style: TextStyle(
+                          color: Colors.white70,
+                          fontSize: 16,
+                        ),
+                      ),
+                    ],
                   ),
                 ),
-                const SizedBox(height: 24),
-                TextField(
-                  controller: _passwordController,
-                  obscureText: true,
-                  decoration: const InputDecoration(
-                    labelText: "Hasło",
-                    border: OutlineInputBorder(),
+
+                const SizedBox(height: 30),
+
+                // Pola logowania
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 20.0),
+                  child: Column(
+                    children: [
+                      TextField(
+                        controller: _usernameController,
+                        decoration: InputDecoration(
+                          labelText: "E-mail",
+                          prefixIcon: const Icon(Icons.email),
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                        ),
+                      ),
+                      const SizedBox(height: 20),
+                      TextField(
+                        controller: _passwordController,
+                        obscureText: true,
+                        decoration: InputDecoration(
+                          labelText: "Hasło",
+                          prefixIcon: const Icon(Icons.lock),
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                        ),
+                      ),
+                      const SizedBox(height: 30),
+
+                      // Przycisk logowania
+                      BlocBuilder<LoginCubit, LoginState>(
+                        builder: (context, state) {
+                          final cubit = context.read<LoginCubit>();
+                          if (state is LoginLoading) {
+                            return const CircularProgressIndicator();
+                          }
+                          return SizedBox(
+                            width: double.infinity,
+                            height: 50,
+                            child: ElevatedButton(
+                              style: ElevatedButton.styleFrom(
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(12),
+                                ),
+                                backgroundColor: Colors.blueAccent,
+                                elevation: 5,
+                              ),
+                              onPressed: () {
+                                cubit.loginUser(
+                                  _usernameController.text,
+                                  _passwordController.text,
+                                );
+                              },
+                              child: const Text(
+                                "Zaloguj się",
+                                style: TextStyle(fontSize: 18, color: Colors.white),
+                              ),
+                            ),
+                          );
+                        },
+                      ),
+
+                      const SizedBox(height: 20),
+
+                      // Dolny tekst z możliwością przejścia do rejestracji
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          const Text("Nie masz konta? "),
+                          GestureDetector(
+                            onTap: () {
+                              context.go(PagesRoute.signupPage.path);
+                            },
+                            child: const Text(
+                              "Utwórz konto",
+                              style: TextStyle(
+                                color: Colors.blueAccent,
+                                fontWeight: FontWeight.bold,
+                                decoration: TextDecoration.underline,
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+
+                      const SizedBox(height: 20),
+                    ],
                   ),
-                ),
-                const SizedBox(height: 24),
-                BlocBuilder<LoginCubit, LoginState>(
-                  builder: (context, state){
-                    final cubit = context.read<LoginCubit>();
-                    if (state is LoginLoading) {
-                      return const CircularProgressIndicator();
-                    }
-                    return ElevatedButton(
-                      onPressed: (){
-                        cubit.loginUser(
-                          _usernameController.text,
-                          _passwordController.text
-                        );
-                      },
-                      child: const Text("Zaloguj się"),
-                    );
-                  },
                 ),
               ],
-            )
+            ),
           ),
         ),
       ),

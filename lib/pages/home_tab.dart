@@ -159,6 +159,13 @@ class _HomeTabState extends State<HomeTab> {
                 bottomLeft: Radius.circular(20),
                 bottomRight: Radius.circular(20),
               ),
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.blueAccent.withOpacity(0.3),
+                  offset: const Offset(0, 5),
+                  blurRadius: 10,
+                ),
+              ],
             ),
             child: Padding(
               padding: const EdgeInsets.all(18.0),
