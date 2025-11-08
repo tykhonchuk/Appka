@@ -1,9 +1,6 @@
-import 'dart:io';
-import 'package:appka/config/pages_route.dart';
 import 'package:appka/pages/preview_photo_page.dart';
 import 'package:flutter/material.dart';
 import 'package:camera/camera.dart';
-import 'package:go_router/go_router.dart';
 
 class CameraScreen extends StatefulWidget {
   final CameraDescription camera;
@@ -52,6 +49,7 @@ class _CameraScreenState extends State<CameraScreen> {
         MaterialPageRoute(
           builder: (context) => PreviewPhotoPage(
             imagePath: image.path,
+            onBack: () => Navigator.of(context).popUntil((route) => route.isFirst),
             onAccept: () {
               widget.onImageTaken(image.path);
               Navigator.of(context).popUntil((route) => route.isFirst); // redirect to Home page
@@ -80,7 +78,7 @@ class _CameraScreenState extends State<CameraScreen> {
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text("Kamera"),
+        title: const Text("Zrób zdjęcie"),
         // backgroundColor: Colors.black,
         // foregroundColor: Colors.black,
       ),

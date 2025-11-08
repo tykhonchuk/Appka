@@ -45,7 +45,7 @@ void main() {
   );
   runApp(
     BlocProvider(
-      create: (_) => ProfileCubit(), // 👈 dostarczenie cubita
+      create: (_) => ProfileCubit(),
       child: MaterialApp.router(
         routerConfig: goRoute,
         theme: themeLight,

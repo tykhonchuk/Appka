@@ -34,7 +34,7 @@ class ProfileCubit extends Cubit<ProfileState> {
         return;
       }
 
-      final url = Uri.parse('http://10.0.2.2:8000/changepassword');
+      final url = Uri.parse('http://10.0.2.2:8000/user/changepassword');
       final response = await http.post(
         url,
         headers: {
@@ -67,7 +67,7 @@ class ProfileCubit extends Cubit<ProfileState> {
         return;
       }
 
-      final url = Uri.parse('http://10.0.2.2:8000/delete-account');
+      final url = Uri.parse('http://10.0.2.2:8000/user/delete-account');
       final response = await http.delete(
         url,
         headers: {
@@ -90,4 +90,37 @@ class ProfileCubit extends Cubit<ProfileState> {
       emit(ProfileError(message: "Błąd podczas usuwania konta: $e"));
     }
   }
+
+  Future<void> fetchUser() async {
+    emit(const ProfileLoading());
+
+    try {
+      final token = await _getToken();
+      if (token == null) {
+        emit(const ProfileError(message: "Brak tokena – zaloguj się ponownie."));
+        return;
+      }
+
+      final url = Uri.parse('http://10.0.2.2:8000/user/me');
+      final response = await http.get(
+        url,
+        headers: {'Authorization': 'Bearer $token'},
+      );
+
+      if (response.statusCode == 200) {
+        final data = jsonDecode(response.body);
+        emit(ProfileUserLoaded(
+          firstName: data['first_name'] ?? "",
+          lastName: data['last_name'] ?? "",
+          username: data['username'] ?? "",
+        ));
+      } else {
+        final data = jsonDecode(response.body);
+        emit(ProfileError(message: data['detail'] ?? "Nie udało się pobrać danych."));
+      }
+    } catch (e) {
+      emit(ProfileError(message: "Błąd podczas pobierania danych: $e"));
+    }
+  }
+
 }

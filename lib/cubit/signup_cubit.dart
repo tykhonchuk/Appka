@@ -8,7 +8,7 @@ part "signup_state.dart";
 class SignupCubit extends Cubit<SignupState>{
   SignupCubit() : super(const SignupInitial());
 
-  void registerUser(String email, String password, String confirmPassword) async{
+  void registerUser(String email, String password, String confirmPassword, String firstName, String lastName) async{
     if (!_isValidEmail(email)){
       emit(const SignupError(message: "Nieprawidłowy adres e-mail"));
       return;
@@ -26,13 +26,15 @@ class SignupCubit extends Cubit<SignupState>{
     //wysywanie do db
     //tester123
     try{
-      final url = Uri.parse('http://10.0.2.2:8000/register');
+      final url = Uri.parse('http://10.0.2.2:8000/user/register');
       final response = await http.post(
         url,
         headers: {'Content-Type': 'application/json'},
         body: jsonEncode({
           'username': email,
-          'password': password
+          'password': password,
+          'first_name': firstName,
+          'last_name': lastName
         }),
       );
       if (response.statusCode == 200) {

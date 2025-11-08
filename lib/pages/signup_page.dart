@@ -14,6 +14,8 @@ class SignupPage extends StatefulWidget {
 }
 
 class _SignupPageState extends State<SignupPage> {
+  final TextEditingController _firstNameController = TextEditingController();
+  final TextEditingController _lastNameController = TextEditingController();
   final TextEditingController _usernameController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
   final TextEditingController _confirmPasswordController = TextEditingController();
@@ -61,6 +63,22 @@ class _SignupPageState extends State<SignupPage> {
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 TextField(
+                  controller: _firstNameController,
+                  decoration: const InputDecoration(
+                    labelText: "Imię",
+                    border: OutlineInputBorder(),
+                  ),
+                ),
+                const SizedBox(height: 24),
+                TextField(
+                  controller: _lastNameController,
+                  decoration: const InputDecoration(
+                    labelText: "Nazwisko",
+                    border: OutlineInputBorder(),
+                  ),
+                ),
+                const SizedBox(height: 24),
+                TextField(
                   controller: _usernameController,
                   decoration: const InputDecoration(
                     labelText: "E-mail",
@@ -97,7 +115,9 @@ class _SignupPageState extends State<SignupPage> {
                         cubit.registerUser(
                             _usernameController.text,
                             _passwordController.text,
-                            _confirmPasswordController.text
+                            _confirmPasswordController.text,
+                            _firstNameController.text,
+                            _lastNameController.text
                         );
                       },
                       child: const Text("Zarejestruj się"),
