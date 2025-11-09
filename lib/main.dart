@@ -1,3 +1,4 @@
+import "package:appka/cubit/document_cubit.dart";
 import "package:appka/cubit/ocr_cubit.dart";
 import "package:appka/pages/account_created_page.dart";
 import "package:appka/pages/add_document_page.dart";
@@ -85,6 +86,7 @@ void main() {
       providers: [
         BlocProvider(create: (_) => ProfileCubit()),
         BlocProvider(create: (_) => OcrCubit()),
+        BlocProvider(create: (_) => DocumentCubit()),
       ],
       child: MaterialApp.router(
         routerConfig: goRoute,

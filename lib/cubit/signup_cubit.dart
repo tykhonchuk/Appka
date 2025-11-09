@@ -1,5 +1,6 @@
 import "dart:convert";
 
+import "package:appka/config/config.dart";
 import "package:flutter_bloc/flutter_bloc.dart";
 import "package:http/http.dart" as http;
 
@@ -26,7 +27,7 @@ class SignupCubit extends Cubit<SignupState>{
     //wysywanie do db
     //tester123
     try{
-      final url = Uri.parse('http://10.0.2.2:8000/user/register');
+      final url = Uri.parse('http://${ApiConfig.baseUrl}/user/register');
       final response = await http.post(
         url,
         headers: {'Content-Type': 'application/json'},

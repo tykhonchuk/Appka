@@ -51,6 +51,9 @@ ios/Flutter/ephemeral/
 # Web
 lib/generated_plugin_registrant.dart
 
+# Plik konfiguracyjny z danymi lokalnymi
+lib/config/config.dart
+
 # Symbolication related
 app.*.symbols
 

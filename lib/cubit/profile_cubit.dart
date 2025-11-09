@@ -1,4 +1,5 @@
 import "dart:convert";
+import "package:appka/config/config.dart";
 import "package:flutter_bloc/flutter_bloc.dart";
 import "package:http/http.dart" as http;
 import "package:shared_preferences/shared_preferences.dart";
@@ -34,7 +35,7 @@ class ProfileCubit extends Cubit<ProfileState> {
         return;
       }
 
-      final url = Uri.parse('http://10.0.2.2:8000/user/changepassword');
+      final url = Uri.parse('http://${ApiConfig.baseUrl}/user/changepassword');
       final response = await http.post(
         url,
         headers: {
@@ -67,7 +68,7 @@ class ProfileCubit extends Cubit<ProfileState> {
         return;
       }
 
-      final url = Uri.parse('http://10.0.2.2:8000/user/delete-account');
+      final url = Uri.parse('http://${ApiConfig.baseUrl}/user/delete-account');
       final response = await http.delete(
         url,
         headers: {
@@ -101,7 +102,7 @@ class ProfileCubit extends Cubit<ProfileState> {
         return;
       }
 
-      final url = Uri.parse('http://10.0.2.2:8000/user/me');
+      final url = Uri.parse('http://${ApiConfig.baseUrl}/user/me');
       final response = await http.get(
         url,
         headers: {'Authorization': 'Bearer $token'},

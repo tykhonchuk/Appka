@@ -13,6 +13,12 @@ class DocumentLoading extends DocumentState{
   const DocumentLoading();
 }
 
+class DocumentLoadedList extends DocumentState {
+  const DocumentLoadedList({required this.documents});
+
+  final List<Map<String, dynamic>> documents;
+}
+
 class DocumentSuccess extends DocumentState{
   const DocumentSuccess();
 }

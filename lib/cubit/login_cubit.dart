@@ -1,4 +1,5 @@
 import "dart:convert";
+import "package:appka/config/config.dart";
 import "package:flutter_bloc/flutter_bloc.dart";
 import "package:http/http.dart" as http;
 import 'package:shared_preferences/shared_preferences.dart';
@@ -27,11 +28,13 @@ class LoginCubit extends Cubit<LoginState>{
         "password": password
       };
       //wyślij żądanie
+      print("--------------------->    ${ApiConfig.baseUrl}");
       final response = await http.post(
-          Uri.parse('http://10.0.2.2:8000/user/login'),
+          Uri.parse('http://${ApiConfig.baseUrl}/user/login'),
           headers: {'Content-Type': 'application/json'},
           body: jsonEncode(body)
       );
+      print("--------------------->    $response");
 
       if (response.statusCode == 200) {
         final data = jsonDecode(response.body);
@@ -43,11 +46,6 @@ class LoginCubit extends Cubit<LoginState>{
       } else {
         emit(LoginError(message: "Nieprawidłowy login lub hasło"));
       }
-
-
-
-
-
 
     } catch (e){
       emit(LoginError(error: e, message: "Błąd połaczenia z serwerem"));

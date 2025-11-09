@@ -1,5 +1,6 @@
 import 'dart:io';
 import 'package:appka/config/pages_route.dart';
+import 'package:appka/cubit/document_cubit.dart';
 import 'package:appka/cubit/ocr_cubit.dart';
 import 'package:appka/pages/preview_pdf_page.dart';
 import 'package:appka/pages/preview_photo_page.dart';
@@ -21,10 +22,11 @@ class HomeTab extends StatefulWidget {
 }
 
 class _HomeTabState extends State<HomeTab> {
-  List<String> items = [];
   CameraController? _controller;
   late List<CameraDescription> _cameras;
-  String userName = "";
+  String userFirstName = "";
+  String userLastName = "";
+  List<Map<String, dynamic>> userDocuments = [];
 
   @override
   void initState() {
@@ -35,17 +37,31 @@ class _HomeTabState extends State<HomeTab> {
 
   Future<void> _loadUserName() async {
     try {
-      final cubit = context.read<ProfileCubit>();
-      await cubit.fetchUser(); // wywołuje request do backendu
-      final state = cubit.state;
+      final profileCubit = context.read<ProfileCubit>();
+      await profileCubit.fetchUser();
+      final state = profileCubit.state;
       if (state is ProfileUserLoaded) {
         setState(() {
-          userName = state.firstName; // zapis do stanu
+          userFirstName = state.firstName;
+          userLastName = state.lastName;
         });
+        // dopiero po pobraniu usera fetchujemy dokumenty
+        _loadUserDocuments();
       }
-    } catch (e) {
+    } catch (_) {
       setState(() {
-        userName = "Użytkownik";
+        userFirstName = "Użytkownik";
+      });
+    }
+  }
+
+  Future<void> _loadUserDocuments() async {
+    final docCubit = context.read<DocumentCubit>();
+    await docCubit.fetchDocumentsByPatientName(userFirstName, userLastName);
+    final state = docCubit.state;
+    if (state is DocumentLoadedList) {
+      setState(() {
+        userDocuments = state.documents;
       });
     }
   }
@@ -66,9 +82,15 @@ class _HomeTabState extends State<HomeTab> {
       MaterialPageRoute(
         builder: (_) => CameraScreen(
           camera: _cameras.first,
-          onImageTaken: (path) {
-            setState(() => items.add(path));
-
+          onImageTaken: (path) async {
+            final ocrCubit = context.read<OcrCubit>();
+            await ocrCubit.sendFileForOcr(File(path));
+            final ocrState = ocrCubit.state;
+            if (ocrState is OcrSuccess) {
+              context.push(
+                  PagesRoute.editDocumentPage.path,
+                  extra: ocrState.extractedData);
+            }
           },
         ),
       ),
@@ -93,11 +115,14 @@ class _HomeTabState extends State<HomeTab> {
             final ocrCubit = context.read<OcrCubit>();
             await ocrCubit.sendFileForOcr(File(image.path));
             final ocrCubitState = ocrCubit.state;
-            if (ocrCubitState is OcrSuccess ){
-              context.push(
-                PagesRoute.addDocumentPage.path,
-                extra: ocrCubitState.extractedData,
-              );
+            final ocrState = ocrCubit.state;
+            if (ocrState is OcrSuccess) {
+              final extractedData = ocrState.extractedData;
+              if (extractedData is Map<String, dynamic>) {
+                context.push(PagesRoute.editDocumentPage.path, extra: extractedData);
+              } else {
+                print("OCR nie zwrócił Map<String, dynamic>: $extractedData");
+              }
             }
             // Navigator.of(context).popUntil((route) => route.isFirst); // zamyka preview i zostawia zdjęcie w liście
             // ScaffoldMessenger.of(context).showSnackBar(
@@ -137,7 +162,7 @@ class _HomeTabState extends State<HomeTab> {
             _pickFile(context);
           },
           onApprove: () {
-            setState(() => items.add(file.path));
+            // setState(() => items.add(file.path));
             Navigator.pop(context);
             ScaffoldMessenger.of(context).showSnackBar(
               const SnackBar(content: Text("✅ PDF zaakceptowany!")),
@@ -148,12 +173,9 @@ class _HomeTabState extends State<HomeTab> {
     );
   }
 
-
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      // appBar: AppBar(title: const Text("Home")),
       body: Column(
         children: [
           // Kontener powitalny
@@ -179,25 +201,21 @@ class _HomeTabState extends State<HomeTab> {
               ],
             ),
             child: Padding(
-              padding: const EdgeInsets.all(18.0),
+              padding: const EdgeInsets.only(top: 22.0, left: 18.0, right: 18.0),
               child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start, // wyrównanie do lewej
+                crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    "Cześć, $userName!",
+                    "Cześć, $userFirstName!",
                     style: const TextStyle(
-                      color: Colors.white,
-                      fontSize: 20,
-                      fontWeight: FontWeight.bold,
-                    ),
+                        color: Colors.white,
+                        fontSize: 20,
+                        fontWeight: FontWeight.bold),
                   ),
                   const SizedBox(height: 4),
                   const Text(
                     "Miło Cię znowu widzieć",
-                    style: TextStyle(
-                      color: Colors.white70,
-                      fontSize: 14,
-                    ),
+                    style: TextStyle(color: Colors.white70, fontSize: 14),
                   ),
                 ],
               ),
@@ -206,17 +224,31 @@ class _HomeTabState extends State<HomeTab> {
           const SizedBox(height: 10),
           // Lista dokumentów
           Expanded(
-            child: items.isNotEmpty
+            child: userDocuments.isNotEmpty
                 ? ListView.builder(
-              itemCount: items.length,
+              itemCount: userDocuments.length,
               itemBuilder: (_, index) {
-                final path = items[index];
-                final isImage = path.endsWith('.jpg') || path.endsWith('.png');
+                final doc = userDocuments[index];
+                final isImage = (doc['file_type'] ?? '')
+                    .toString()
+                    .contains('jpg') ||
+                    (doc['file_type'] ?? '').toString().contains('png');
+
                 return ListTile(
                   leading: isImage
-                      ? Image.file(File(path), width: 50, height: 50, fit: BoxFit.cover)
+                      ? Image.file(File(doc['filepath']), width: 50, height: 50, fit: BoxFit.cover)
                       : const Icon(Icons.picture_as_pdf, color: Colors.redAccent),
-                  title: Text(path.split('/').last),
+                  title: Text("${doc['document_type'] ?? 'Dokument'} – ${doc['visit_date'] ?? '-'}"),
+                  subtitle: Text("Lekarz: ${doc['doctor_name'] ?? '-'}"),
+                  onTap: () {
+                    if (isImage) {
+                      context.push(PagesRoute.previewPhotoPage.path,
+                          extra: doc['filepath']);
+                    } else {
+                      context.push(PagesRoute.previewPDFPage.path,
+                          extra: doc['filepath']);
+                    }
+                  },
                 );
               },
             )
@@ -229,14 +261,12 @@ class _HomeTabState extends State<HomeTab> {
         activeIcon: Icons.close,
         backgroundColor: Colors.blueAccent,
         foregroundColor: Colors.white,
-        // spacing: 10,
-        // spaceBetweenChildren: 10,
         children: [
           SpeedDialChild(
-            child: Icon(Icons.camera_alt, color: Theme.of(context).brightness == Brightness.dark
-                ? Colors.blueGrey.shade200   // jaśniejszy kolor dla dark mode
-                : Colors.blueGrey.shade700,),
-            // foregroundColor: Colors.blueGrey.shade800,
+            child: Icon(Icons.camera_alt,
+                color: Theme.of(context).brightness == Brightness.dark
+                    ? Colors.blueGrey.shade200
+                    : Colors.blueGrey.shade700),
             onTap: () => _pickImageFromCamera(context),
           ),
           SpeedDialChild(

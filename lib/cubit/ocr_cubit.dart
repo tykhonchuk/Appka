@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'dart:io';
+import 'package:appka/config/config.dart';
 import 'package:http/http.dart' as http;
 import 'package:flutter_bloc/flutter_bloc.dart';
 
@@ -10,7 +11,7 @@ class OcrCubit extends Cubit<OcrState> {
 
   Future<void> sendFileForOcr(File file) async {
     emit(OcrLoading());
-    final uri = Uri.parse("http://10.0.2.2:8000/ocr/extract-text");
+    final uri = Uri.parse("http://${ApiConfig.baseUrl}/ocr/extract-text");
 
     try {
       final request = http.MultipartRequest('POST', uri);
