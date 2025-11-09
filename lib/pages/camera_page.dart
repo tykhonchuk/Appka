@@ -1,6 +1,10 @@
-import 'package:appka/pages/preview_photo_page.dart';
-import 'package:flutter/material.dart';
-import 'package:camera/camera.dart';
+import "dart:io";
+import "package:appka/config/pages_route.dart";
+import "package:appka/cubit/ocr_cubit.dart";
+import "package:flutter/material.dart";
+import "package:camera/camera.dart";
+import "package:flutter_bloc/flutter_bloc.dart";
+import "package:go_router/go_router.dart";
 
 class CameraScreen extends StatefulWidget {
   final CameraDescription camera;
@@ -44,21 +48,23 @@ class _CameraScreenState extends State<CameraScreen> {
   Future<void> _takePicture() async {
     try {
       final image = await _controller.takePicture();
-      await Navigator.push(
-        context,
-        MaterialPageRoute(
-          builder: (context) => PreviewPhotoPage(
-            imagePath: image.path,
-            onBack: () => Navigator.of(context).popUntil((route) => route.isFirst),
-            onAccept: () {
-              widget.onImageTaken(image.path);
-              Navigator.of(context).popUntil((route) => route.isFirst); // redirect to Home page
-            },
-            onRetake: () {
-              Navigator.pop(context); // return to camera page
-            },
-          ),
-        ),
+
+      // przekazujemy dane do PreviewPhotoPage przez GoRouter
+      context.push(
+        PagesRoute.previewPhotoPage.path,
+        extra: {
+          'imagePath': image.path,
+          'onBack': () => context.pop(),
+          'onAccept': () async {
+            widget.onImageTaken(image.path);
+            final ocrCubit = context.read<OcrCubit>();
+            await ocrCubit.sendFileForOcr(File(image.path));
+            context.push(PagesRoute.editDocumentPage.path, extra: ocrCubit.state is OcrSuccess
+                ? (ocrCubit.state as OcrSuccess).extractedData
+                : null);
+          },
+          'onRetake': () => context.push(PagesRoute.cameraPage.path, extra: widget.camera),
+        },
       );
     } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(
@@ -79,27 +85,22 @@ class _CameraScreenState extends State<CameraScreen> {
     return Scaffold(
       appBar: AppBar(
         title: const Text("Zrób zdjęcie"),
-        // backgroundColor: Colors.black,
-        // foregroundColor: Colors.black,
       ),
-      // backgroundColor: Colors.white,
-        body: Center(
-          child: Column(
-            children: [
-              Expanded(
-                child: CameraPreview(_controller),
+      body: Center(
+        child: Column(
+          children: [
+            Expanded(child: CameraPreview(_controller)),
+            Padding(
+              padding: const EdgeInsets.all(30.0),
+              child: FloatingActionButton(
+                onPressed: _takePicture,
+                backgroundColor: Colors.white,
+                child: const Icon(Icons.camera_alt, color: Colors.black, size: 32),
               ),
-              Padding(
-                padding: const EdgeInsets.all(30.0),
-                child: FloatingActionButton(
-                  onPressed: _takePicture,
-                  backgroundColor: Colors.white,
-                  child: const Icon(Icons.camera_alt, color: Colors.black, size: 32),
-                ),
-              ),
-            ],
-          ),
+            ),
+          ],
         ),
+      ),
     );
   }
 }

@@ -1,9 +1,12 @@
 import 'dart:io';
+import 'package:appka/config/pages_route.dart';
+import 'package:appka/cubit/ocr_cubit.dart';
 import 'package:appka/pages/preview_pdf_page.dart';
 import 'package:appka/pages/preview_photo_page.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_speed_dial/flutter_speed_dial.dart';
+import 'package:go_router/go_router.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:camera/camera.dart';
@@ -65,9 +68,7 @@ class _HomeTabState extends State<HomeTab> {
           camera: _cameras.first,
           onImageTaken: (path) {
             setState(() => items.add(path));
-            ScaffoldMessenger.of(context).showSnackBar(
-              const SnackBar(content: Text("✅ Zdjęcie zapisane!")),
-            );
+
           },
         ),
       ),
@@ -86,15 +87,25 @@ class _HomeTabState extends State<HomeTab> {
       MaterialPageRoute(
         builder: (_) => PreviewPhotoPage(
           imagePath: image.path,
-          onAccept: () {
-            setState(() => items.add(image.path));
-            Navigator.of(context).popUntil((route) => route.isFirst); // zamyka preview i zostawia zdjęcie w liście
-            ScaffoldMessenger.of(context).showSnackBar(
-              const SnackBar(content: Text("✅ Zdjęcie zapisane!")),
-            );
+          onAccept: () async{
+            // setState(() => items.add(image.path));
+
+            final ocrCubit = context.read<OcrCubit>();
+            await ocrCubit.sendFileForOcr(File(image.path));
+            final ocrCubitState = ocrCubit.state;
+            if (ocrCubitState is OcrSuccess ){
+              context.push(
+                PagesRoute.addDocumentPage.path,
+                extra: ocrCubitState.extractedData,
+              );
+            }
+            // Navigator.of(context).popUntil((route) => route.isFirst); // zamyka preview i zostawia zdjęcie w liście
+            // ScaffoldMessenger.of(context).showSnackBar(
+            //   const SnackBar(content: Text("✅ Zdjęcie zapisane!")),
+            // );
           },
           onRetake: () {
-            Navigator.pop(context); // zamyka preview i możesz ponownie wybrać zdjęcie
+            context.push(PagesRoute.cameraPage.path); // zamyka preview i możesz ponownie wybrać zdjęcie
             _pickImageFromGallery(context);
           },
           onBack: () => Navigator.of(context).popUntil((route) => route.isFirst), // powrót bez zmian

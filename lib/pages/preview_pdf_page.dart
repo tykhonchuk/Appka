@@ -1,7 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_pdfview/flutter_pdfview.dart';
-import 'package:file_picker/file_picker.dart';
-import 'dart:io';
 
 class PreviewPDFPage extends StatelessWidget {
   final String filePath;
