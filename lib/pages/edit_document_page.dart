@@ -73,6 +73,9 @@ class _EditDocumentPageState extends State<EditDocumentPage> {
                       'recommendations': recommendationsController.text,
                       'doctor_name': doctorController.text,
                       'document_type': docTypeController.text,
+                      'filename': 'document_${DateTime.now().millisecondsSinceEpoch}.pdf', // przykładowa nazwa
+                      'file_type': 'jpg', // lub 'jpg' zależnie od tego co masz
+                      'ocr_text': widget.initialData?["ocr_text"] ?? "",
                     });
                   },
                   child: const Text("Zapisz"),

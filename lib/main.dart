@@ -17,7 +17,7 @@ import "package:appka/config/pages_route.dart";
 import "package:appka/config/theme_dark.dart";
 import "package:appka/config/theme_light.dart";
 import "package:appka/pages/login_page.dart";
-import 'package:appka/cubit/profile_cubit.dart';
+import "package:appka/cubit/profile_cubit.dart";
 import "package:camera/camera.dart";
 import "package:flutter/material.dart";
 import "package:flutter_bloc/flutter_bloc.dart";
@@ -38,7 +38,10 @@ void main() {
       final data = state.extra as Map<String, dynamic>?;
       return EditDocumentPage(initialData: data);
     },
-    PagesRoute.documentDetailsPage.path: (context, state) => const DocumentDetailsPage(),
+    PagesRoute.documentDetailsPage.path: (context, state){
+      final data = state.extra as Map<String, dynamic>;
+      return DocumentDetailsPage(document: data);
+    },
     PagesRoute.cameraPage.path: (context, state){
       final camera = state.extra as CameraDescription;
       return CameraScreen(
