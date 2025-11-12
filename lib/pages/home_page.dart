@@ -4,14 +4,19 @@ import 'package:flutter/material.dart';
 import 'home_tab.dart';
 
 class HomePage extends StatefulWidget {
-  const HomePage({super.key});
+  const HomePage({super.key, this.initialIndex});
+  final int? initialIndex;
 
   @override
   State<HomePage> createState() => _HomePageState();
+
+  // Dodaj statyczną metodę do łatwego dostępu przez context
+  static _HomePageState? of(BuildContext context) =>
+      context.findAncestorStateOfType<_HomePageState>();
 }
 
 class _HomePageState extends State<HomePage> {
-  int _currentIndex = 0;
+  late int _currentIndex;
 
   final List<Widget> _pages = const [
     HomeTab(),
@@ -19,17 +24,23 @@ class _HomePageState extends State<HomePage> {
     ProfilePage(),
   ];
 
-  void _onItemTapped(int index) {
+  @override
+  void initState() {
+    super.initState();
+    _currentIndex = (widget.initialIndex ?? 0).clamp(0, _pages.length - 1);
+  }
+
+  void setIndex(int index) {
     setState(() => _currentIndex = index);
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: _pages[_currentIndex], // ← zmienia ekran w zależności od zakładki
+      body: _pages[_currentIndex],
       bottomNavigationBar: BottomNavigationBar(
         currentIndex: _currentIndex,
-        onTap: _onItemTapped,
+        onTap: (i) => setIndex(i),
         selectedItemColor: Colors.blueAccent,
         items: const [
           BottomNavigationBarItem(icon: Icon(Icons.home), label: "Home"),

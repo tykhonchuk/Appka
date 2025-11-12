@@ -28,13 +28,11 @@ class LoginCubit extends Cubit<LoginState>{
         "password": password
       };
       //wyślij żądanie
-      print("--------------------->    ${ApiConfig.baseUrl}");
       final response = await http.post(
           Uri.parse('http://${ApiConfig.baseUrl}/user/login'),
           headers: {'Content-Type': 'application/json'},
           body: jsonEncode(body)
       );
-      print("--------------------->    $response");
 
       if (response.statusCode == 200) {
         final data = jsonDecode(response.body);

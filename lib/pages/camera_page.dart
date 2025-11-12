@@ -1,6 +1,7 @@
 import "dart:io";
 import "package:appka/config/pages_route.dart";
 import "package:appka/cubit/ocr_cubit.dart";
+import "package:appka/pages/home_page.dart";
 import "package:flutter/material.dart";
 import "package:camera/camera.dart";
 import "package:flutter_bloc/flutter_bloc.dart";
@@ -85,20 +86,46 @@ class _CameraScreenState extends State<CameraScreen> {
     return Scaffold(
       appBar: AppBar(
         title: const Text("Zrób zdjęcie"),
+        automaticallyImplyLeading: false //no arrow back
       ),
       body: Center(
-        child: Column(
-          children: [
-            Expanded(child: CameraPreview(_controller)),
-            Padding(
-              padding: const EdgeInsets.all(30.0),
-              child: FloatingActionButton(
-                onPressed: _takePicture,
-                backgroundColor: Colors.white,
-                child: const Icon(Icons.camera_alt, color: Colors.black, size: 32),
+        child: Padding(
+          padding: const EdgeInsets.all(16.0),
+          child: Column(
+            children: [
+              Expanded(child: CameraPreview(_controller)),
+              const SizedBox(height: 20),
+
+              Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  FloatingActionButton(
+                    heroTag: 'close_camera_button',
+                    onPressed:(){ //context.go(PagesRoute.homePage.path);
+                      context.pop();
+                      // final home = HomePage.of(context);
+                      // if (home != null) {
+                      //   home.setIndex(0); // HomeTab
+                      //   Navigator.of(context).popUntil((route) => route.isFirst);
+                      // } else {
+                      //   // Jeśli HomePage nie istnieje, stwórz nową instancję
+                      //   context.go(PagesRoute.homePage.path, extra: 0);
+                      // }
+                    },
+                    backgroundColor: Colors.white,
+                    child: const Icon(Icons.close, color: Colors.blueAccent, size: 32),
+                  ),
+                  const SizedBox(width: 40),
+
+                  FloatingActionButton(
+                      onPressed: _takePicture,
+                      backgroundColor: Colors.blueAccent,
+                      child: const Icon(Icons.camera_alt, color: Colors.white, size: 32),
+                  ),
+                ],
               ),
-            ),
-          ],
+            ],
+          ),
         ),
       ),
     );

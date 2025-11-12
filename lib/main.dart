@@ -28,7 +28,10 @@ void main() {
     PagesRoute.welcomePage.path: (context, state) => const WelcomePage(),
     PagesRoute.loginPage.path: (context, state) => const LoginPage(),
     PagesRoute.signupPage.path: (context, state) => const SignupPage(),
-    PagesRoute.homePage.path: (context, state) => const HomePage(),
+    PagesRoute.homePage.path: (context, state) {
+      final int index = state.extra is int ? state.extra as int : 0;
+      return HomePage(initialIndex: index);
+    },
     PagesRoute.accountCreatedPage.path: (context, state) => const AccountCreatedPage(),
     PagesRoute.profilePage.path: (context, state) => const ProfilePage(),
     PagesRoute.changePasswordPage.path: (context, state) => const ChangePasswordPage(),
