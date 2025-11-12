@@ -118,12 +118,8 @@ class _HomeTabState extends State<HomeTab> {
             final ocrState = ocrCubit.state;
             if (ocrState is OcrSuccess) {
               final extractedData = ocrState.extractedData;
-              if (extractedData is Map<String, dynamic>) {
-                context.push(PagesRoute.editDocumentPage.path, extra: extractedData);
-              } else {
-                print("OCR nie zwrócił Map<String, dynamic>: $extractedData");
-              }
-            }
+              context.push(PagesRoute.editDocumentPage.path, extra: extractedData);
+                        }
             // Navigator.of(context).popUntil((route) => route.isFirst); // zamyka preview i zostawia zdjęcie w liście
             // ScaffoldMessenger.of(context).showSnackBar(
             //   const SnackBar(content: Text("✅ Zdjęcie zapisane!")),
@@ -225,7 +221,7 @@ class _HomeTabState extends State<HomeTab> {
           // Lista dokumentów
           Expanded(
             child: userDocuments.isNotEmpty
-                ? ListView.builder(
+              ? ListView.builder(
               itemCount: userDocuments.length,
               itemBuilder: (_, index) {
                 final doc = userDocuments[index];
@@ -235,19 +231,21 @@ class _HomeTabState extends State<HomeTab> {
                     (doc['file_type'] ?? '').toString().contains('png');
 
                 return ListTile(
-                  leading: isImage
-                      ? Image.file(File(doc['filepath']), width: 50, height: 50, fit: BoxFit.cover)
+                  leading: isImage && doc['filepath'] != null && doc['filepath'] != ''
+                      ? Image.file(
+                    File(doc['filepath']),
+                    width: 50,
+                    height: 50,
+                    fit: BoxFit.cover,
+                  )
                       : const Icon(Icons.picture_as_pdf, color: Colors.redAccent),
                   title: Text("${doc['document_type'] ?? 'Dokument'} – ${doc['visit_date'] ?? '-'}"),
                   subtitle: Text("Lekarz: ${doc['doctor_name'] ?? '-'}"),
                   onTap: () {
-                    if (isImage) {
-                      context.push(PagesRoute.previewPhotoPage.path,
-                          extra: doc['filepath']);
-                    } else {
-                      context.push(PagesRoute.previewPDFPage.path,
-                          extra: doc['filepath']);
-                    }
+                    context.push(
+                      PagesRoute.documentDetailsPage.path,
+                      extra: doc,
+                    );
                   },
                 );
               },
