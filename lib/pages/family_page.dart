@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:go_router/go_router.dart';
 import '../cubit/family_cubit.dart'; // Twój cubit
 
 class FamilyPage extends StatelessWidget {
@@ -76,6 +77,7 @@ class FamilyPage extends StatelessWidget {
                           final member = members[index];
                           return InkWell(
                             onTap: () {
+                              //context.go('/member/${member['id']}');
                               print("Kliknięto ${member['first_name']}");
                               // np. nawigacja do szczegółów
                             },
@@ -104,7 +106,11 @@ class FamilyPage extends StatelessWidget {
                                   ),
                                   const SizedBox(height: 5),
                                   Text(
-                                    "${member['documents_count']} dokumentów", // <--- liczba dokumentów
+                                    member['documents_count'] == 0
+                                        ? "Brak dokumentów"
+                                        : member['documents_count'] == 1
+                                        ? "1 dokument"
+                                        : "${member['documents_count']} dokumenty", // <--- liczba dokumentów
                                     style: const TextStyle(
                                       fontSize: 14,
                                       color: Colors.grey,

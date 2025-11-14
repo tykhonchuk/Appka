@@ -7,6 +7,7 @@ import "package:appka/pages/change_password_page.dart";
 import "package:appka/pages/delete_account_page.dart";
 import "package:appka/pages/document_details_page.dart";
 import "package:appka/pages/edit_document_page.dart";
+import "package:appka/pages/edit_profile_page.dart";
 import "package:appka/pages/home_page.dart";
 import "package:appka/pages/preview_pdf_page.dart";
 import "package:appka/pages/preview_photo_page.dart";
@@ -70,6 +71,7 @@ void main() {
         onApprove: args['onApprove'],
       );
     } ,
+    PagesRoute.editProfilePage.path: (context, state) => const EditProfilePage(),
     // PagesRoute.familyPage.path: (context, state) => const FamilyPage(),
   };
   final goRoute = GoRouter(

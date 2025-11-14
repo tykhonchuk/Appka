@@ -2,17 +2,19 @@ import 'dart:io';
 import 'package:appka/config/pages_route.dart';
 import 'package:appka/cubit/document_cubit.dart';
 import 'package:appka/cubit/ocr_cubit.dart';
+import 'package:appka/cubit/profile_cubit.dart';
+import 'package:appka/pages/camera_page.dart';
+import 'package:appka/pages/home_tab/documents_list.dart';
+import 'package:appka/pages/home_tab/floating_actions.dart';
+import 'package:appka/pages/home_tab/welcome_header.dart';
 import 'package:appka/pages/preview_pdf_page.dart';
 import 'package:appka/pages/preview_photo_page.dart';
+import 'package:camera/camera.dart';
+import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:flutter_speed_dial/flutter_speed_dial.dart';
 import 'package:go_router/go_router.dart';
 import 'package:image_picker/image_picker.dart';
-import 'package:file_picker/file_picker.dart';
-import 'package:camera/camera.dart';
-import '../cubit/profile_cubit.dart';
-import 'camera_page.dart';
 
 class HomeTab extends StatefulWidget {
   const HomeTab({super.key});
@@ -31,27 +33,19 @@ class _HomeTabState extends State<HomeTab> {
   @override
   void initState() {
     super.initState();
-    _initCamera();
     _loadUserName();
   }
 
   Future<void> _loadUserName() async {
-    try {
-      final profileCubit = context.read<ProfileCubit>();
-      await profileCubit.fetchUser();
-      final state = profileCubit.state;
-      if (state is ProfileUserLoaded) {
-        setState(() {
-          userFirstName = state.firstName;
-          userLastName = state.lastName;
-        });
-        // dopiero po pobraniu usera fetchujemy dokumenty
-        _loadUserDocuments();
-      }
-    } catch (_) {
+    final profileCubit = context.read<ProfileCubit>();
+    await profileCubit.fetchUser();
+    final state = profileCubit.state;
+    if (state is ProfileUserLoaded) {
       setState(() {
-        userFirstName = "Użytkownik";
+        userFirstName = state.firstName;
+        userLastName = state.lastName;
       });
+      _loadUserDocuments();
     }
   }
 
@@ -60,9 +54,7 @@ class _HomeTabState extends State<HomeTab> {
     await docCubit.fetchDocumentsByPatientName(userFirstName, userLastName);
     final state = docCubit.state;
     if (state is DocumentLoadedList) {
-      setState(() {
-        userDocuments = state.documents;
-      });
+      setState(() => userDocuments = state.documents);
     }
   }
 
@@ -97,7 +89,6 @@ class _HomeTabState extends State<HomeTab> {
     );
   }
 
-
   Future<void> _pickImageFromGallery(BuildContext context) async {
     final picker = ImagePicker();
     final XFile? image = await picker.pickImage(source: ImageSource.gallery);
@@ -119,7 +110,7 @@ class _HomeTabState extends State<HomeTab> {
             if (ocrState is OcrSuccess) {
               final extractedData = ocrState.extractedData;
               context.push(PagesRoute.editDocumentPage.path, extra: extractedData);
-                        }
+            }
             // Navigator.of(context).popUntil((route) => route.isFirst); // zamyka preview i zostawia zdjęcie w liście
             // ScaffoldMessenger.of(context).showSnackBar(
             //   const SnackBar(content: Text("✅ Zdjęcie zapisane!")),
@@ -174,110 +165,21 @@ class _HomeTabState extends State<HomeTab> {
     return Scaffold(
       body: Column(
         children: [
-          // Kontener powitalny
-          Container(
-            width: double.infinity,
-            padding: const EdgeInsets.symmetric(vertical: 20, horizontal: 16),
-            decoration: BoxDecoration(
-              gradient: LinearGradient(
-                colors: [Colors.blueAccent.shade700, Colors.blueAccent.shade200],
-                begin: Alignment.topCenter,
-                end: Alignment.bottomCenter,
-              ),
-              borderRadius: const BorderRadius.only(
-                bottomLeft: Radius.circular(20),
-                bottomRight: Radius.circular(20),
-              ),
-              boxShadow: [
-                BoxShadow(
-                  color: Colors.blueAccent.withOpacity(0.3),
-                  offset: const Offset(0, 5),
-                  blurRadius: 10,
-                ),
-              ],
-            ),
-            child: Padding(
-              padding: const EdgeInsets.only(top: 22.0, left: 18.0, right: 18.0),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    "Cześć, $userFirstName!",
-                    style: const TextStyle(
-                        color: Colors.white,
-                        fontSize: 20,
-                        fontWeight: FontWeight.bold),
-                  ),
-                  const SizedBox(height: 4),
-                  const Text(
-                    "Miło Cię znowu widzieć",
-                    style: TextStyle(color: Colors.white70, fontSize: 14),
-                  ),
-                ],
-              ),
-            ),
-          ),
-          const SizedBox(height: 10),
-          // Lista dokumentów
+          WelcomeHeader(userFirstName: userFirstName),
           Expanded(
-            child: userDocuments.isNotEmpty
-              ? ListView.builder(
-              itemCount: userDocuments.length,
-              itemBuilder: (_, index) {
-                final doc = userDocuments[index];
-                final isImage = (doc['file_type'] ?? '')
-                    .toString()
-                    .contains('jpg') ||
-                    (doc['file_type'] ?? '').toString().contains('png');
-
-                return ListTile(
-                  leading: isImage && doc['filepath'] != null && doc['filepath'] != ''
-                      ? Image.file(
-                    File(doc['filepath']),
-                    width: 50,
-                    height: 50,
-                    fit: BoxFit.cover,
-                  )
-                      : const Icon(Icons.picture_as_pdf, color: Colors.redAccent),
-                  title: Text("${doc['document_type'] ?? 'Dokument'} – ${doc['visit_date'] ?? '-'}"),
-                  subtitle: Text("Lekarz: ${doc['doctor_name'] ?? '-'}"),
-                  onTap: () {
-                    context.push(
-                      PagesRoute.documentDetailsPage.path,
-                      extra: doc,
-                    );
-                  },
-                );
-              },
-            )
-                : const Center(child: Text("Brak dokumentów")),
+            child: DocumentsList(
+              documents: userDocuments,
+              userFirstName: userFirstName,
+              userLastName: userLastName,
+              onDelete: _loadUserDocuments,
+            ),
           ),
         ],
       ),
-      floatingActionButton: SpeedDial(
-        icon: Icons.add,
-        activeIcon: Icons.close,
-        backgroundColor: Colors.blueAccent,
-        foregroundColor: Colors.white,
-        children: [
-          SpeedDialChild(
-            child: Icon(Icons.camera_alt,
-                color: Theme.of(context).brightness == Brightness.dark
-                    ? Colors.blueGrey.shade200
-                    : Colors.blueGrey.shade700),
-            onTap: () => _pickImageFromCamera(context),
-          ),
-          SpeedDialChild(
-            child: const Icon(Icons.photo_library),
-            foregroundColor: Colors.teal.shade700,
-            onTap: () => _pickImageFromGallery(context),
-          ),
-          SpeedDialChild(
-            child: const Icon(Icons.attach_file),
-            foregroundColor: Colors.deepPurple.shade400,
-            onTap: () => _pickFile(context),
-          ),
-        ],
+      floatingActionButton: FloatingActions(
+        onPickCamera: () => _pickImageFromCamera(context),
+        onPickGallery: () => _pickImageFromGallery(context),
+        onPickFile: () => _pickFile(context),
       ),
     );
   }

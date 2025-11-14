@@ -194,6 +194,12 @@ class _ProfilePageState extends State<ProfilePage> {
               const SizedBox(height: 20),
               // Przyciski
               _buildProfileButton(
+                text: "Edytuj profil",
+                onPressed: () {
+                  context.push(PagesRoute.editProfilePage.path);
+                },
+              ),
+              _buildProfileButton(
                 text: "Zmień hasło",
                 foregroundColor: Colors.black,
                 onPressed: () {

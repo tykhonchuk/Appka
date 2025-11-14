@@ -107,4 +107,33 @@ class DocumentCubit extends Cubit<DocumentState>{
     }
   }
 
+  Future<void> deleteDocument(int documentId, String firstName, String lastName) async {
+    emit(const DocumentLoading());
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      final token = prefs.getString('access_token');
+
+      final uri = Uri.parse('http://${ApiConfig.baseUrl}/document/delete-document/$documentId');
+      final response = await http.delete(
+        uri,
+        headers: {
+          'Authorization': 'Bearer $token',
+          'Content-Type': 'application/json',
+        },
+      );
+
+      if (response.statusCode == 204) {
+        // odśwież listę dokumentów
+        await fetchDocumentsByPatientName(firstName, lastName);
+      } else {
+        final error = jsonDecode(response.body)["detail"] ?? "Nieznany błąd";
+        emit(DocumentError(message: error));
+      }
+    } catch (e) {
+      emit(DocumentError(message: "Nie udało się usunąć dokumentu", error: e));
+    }
+  }
+
+
+
 }

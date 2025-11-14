@@ -124,4 +124,47 @@ class ProfileCubit extends Cubit<ProfileState> {
     }
   }
 
+  Future<void> updateUser({
+    required String firstName,
+    required String lastName,
+    required String username,
+  }) async {
+    emit(const ProfileLoading());
+
+    try {
+      final token = await _getToken();
+      if (token == null) {
+        emit(const ProfileError(message: "Brak tokena – zaloguj się ponownie."));
+        return;
+      }
+
+      final url = Uri.parse('http://${ApiConfig.baseUrl}/user/update');
+      final response = await http.put(
+        url,
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': 'Bearer $token',
+        },
+        body: jsonEncode({
+          'first_name': firstName,
+          'last_name': lastName,
+          'username': username,
+        }),
+      );
+
+      if (response.statusCode == 200) {
+        emit(const ProfileSuccess());
+
+        // 🔥 odśwież dane + EMITUJ NOWY STATE
+        await fetchUser();
+      } else {
+        final data = jsonDecode(response.body);
+        emit(ProfileError(message: data['detail'] ?? "Nie udało się zaktualizować danych."));
+      }
+    } catch (e) {
+      emit(ProfileError(message: "Błąd podczas aktualizacji danych: $e"));
+    }
+  }
+
+
 }

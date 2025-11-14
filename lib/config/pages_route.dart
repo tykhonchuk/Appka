@@ -14,6 +14,7 @@ enum PagesRoute{
   cameraPage("/camera", "Camera Page"),
   previewPhotoPage("/preview-image", "Preview Image"),
   previewPDFPage("/preview-pdf", "Preview PDF"),
+  editProfilePage("/edit-profile", "Edit Profile Page"),
 
   ;
 
