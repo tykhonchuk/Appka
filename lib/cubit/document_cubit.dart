@@ -3,6 +3,9 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:appka/config/config.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:http/http.dart' as http;
+import 'package:file_picker/file_picker.dart';
+import 'package:firebase_storage/firebase_storage.dart';
+import 'dart:io';
 
 part "document_state.dart";
 
@@ -33,6 +36,7 @@ class DocumentCubit extends Cubit<DocumentState>{
           'document_type': documentData['document_type'],
           'filename': documentData['filename'],
           'file_type': documentData['file_type'],
+          'file_url': documentData['file_url'],
           'ocr_text': documentData['ocr_text'] ?? "",
         }),
       );
@@ -133,7 +137,4 @@ class DocumentCubit extends Cubit<DocumentState>{
       emit(DocumentError(message: "Nie udało się usunąć dokumentu", error: e));
     }
   }
-
-
-
 }

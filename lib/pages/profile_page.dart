@@ -15,14 +15,15 @@ class _ProfilePageState extends State<ProfilePage> {
   String firstName = "";
   String lastName = "";
   String email = "john.doe@email.com";
-  final int documents = 24;
-  final int members = 6;
-  final int mbUsed = 234;
+  int documents = 100;
+  int members = 101;
+  int mbUsed = 102;
 
   @override
   void initState() {
     super.initState();
     _loadUserData();
+    _loadUserStats();
   }
 
   Future<void> _loadUserData() async {
@@ -41,6 +42,28 @@ class _ProfilePageState extends State<ProfilePage> {
       // jeśli nie uda się pobrać imienia, możesz ustawić np. "Użytkownik"
       setState(() {
         firstName = "Użytkownik";
+      });
+    }
+  }
+
+  Future<void> _loadUserStats() async{
+    try{
+      final cubit = context.read<ProfileCubit>();
+      await cubit.fetchStats();
+      final state = cubit.state;
+      if (state is ProfileStatsLoaded) {
+        setState(() {
+          documents = state.documents;
+          members = state.members;
+          mbUsed = state.mbUsed;
+        });
+      }
+    }catch (e) {
+      // jeśli nie uda się pobrać imienia, możesz ustawić np. "Użytkownik"
+      setState(() {
+        documents = 0;
+        members = 0;
+        mbUsed = 0;
       });
     }
   }
@@ -183,7 +206,7 @@ class _ProfilePageState extends State<ProfilePage> {
                         mainAxisAlignment: MainAxisAlignment.spaceAround,
                         children: [
                           _buildStatCard("Dokumenty", documents.toString()),
-                          _buildStatCard("Rodzina", members.toString()),
+                          _buildStatCard("Podopieczni", members.toString()),
                           _buildStatCard("MB", mbUsed.toString()),
                         ],
                       ),

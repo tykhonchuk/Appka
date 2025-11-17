@@ -54,8 +54,18 @@ lib/generated_plugin_registrant.dart
 # Plik konfiguracyjny z danymi lokalnymi
 lib/config/config.dart
 
+#windows
+windows/flutter/generated_plugin_registrant.cc
+windows/flutter/generated_plugins.cmake
+
+#macos
+macos/Flutter/GeneratedPluginRegistrant.swift
+
 # Symbolication related
 app.*.symbols
 
 # Obfuscation related
 app.*.map.json
+
+# Android local config
+android/app/google-services.json

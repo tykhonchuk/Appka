@@ -11,6 +11,7 @@ import 'package:appka/pages/preview_pdf_page.dart';
 import 'package:appka/pages/preview_photo_page.dart';
 import 'package:camera/camera.dart';
 import 'package:file_picker/file_picker.dart';
+import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
@@ -33,8 +34,20 @@ class _HomeTabState extends State<HomeTab> {
   @override
   void initState() {
     super.initState();
-    _loadUserName();
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
+      if (!mounted) return;
+      await _loadUserName();
+      await _initCamera();
+    });
   }
+
+  //zamykanie kamery gdy przechodzi sie na inną stronę
+  @override
+  void dispose() {
+    _controller?.dispose();
+    super.dispose();
+  }
+
 
   Future<void> _loadUserName() async {
     final profileCubit = context.read<ProfileCubit>();
@@ -45,7 +58,7 @@ class _HomeTabState extends State<HomeTab> {
         userFirstName = state.firstName;
         userLastName = state.lastName;
       });
-      _loadUserDocuments();
+      await _loadUserDocuments();
     }
   }
 
@@ -59,16 +72,35 @@ class _HomeTabState extends State<HomeTab> {
   }
 
   Future<void> _initCamera() async {
-    _cameras = await availableCameras();
-    if (_cameras.isNotEmpty) {
-      _controller = CameraController(_cameras.first, ResolutionPreset.medium);
-      await _controller!.initialize();
-      setState(() {});
+    try {
+      _cameras = await availableCameras();
+      if (_cameras.isNotEmpty) {
+        _controller = CameraController(_cameras.first, ResolutionPreset.medium);
+        await _controller!.initialize();
+        if (!mounted) return;
+        setState(() {});
+      }
+    } catch (e) {
+      print("Błąd inicjalizacji kamery: $e");
     }
   }
 
+  Future<String> _sendToFirebase(File file)async{
+    final fileName = file.path.split('/').last;
+    final storageRef = FirebaseStorage.instance.ref();
+    final fileRef = storageRef.child("documents/${DateTime.now().millisecondsSinceEpoch}_$fileName");
+    await fileRef.putFile(file);
+    final downloadUrl = await fileRef.getDownloadURL();
+    return downloadUrl;
+  }
+
   Future<void> _pickImageFromCamera(BuildContext context) async {
-    if (_cameras.isEmpty) return;
+    if (_cameras.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text("Brak dostępnej kamery")),
+      );
+      return;
+    }
     await Navigator.push(
       context,
       MaterialPageRoute(
@@ -101,14 +133,22 @@ class _HomeTabState extends State<HomeTab> {
         builder: (_) => PreviewPhotoPage(
           imagePath: image.path,
           onAccept: () async{
-            // setState(() => items.add(image.path));
+            final file = File(image.path);
+
+            final downloadUrl = await _sendToFirebase(file);
 
             final ocrCubit = context.read<OcrCubit>();
-            await ocrCubit.sendFileForOcr(File(image.path));
-            final ocrCubitState = ocrCubit.state;
+            await ocrCubit.sendFileForOcr(file);
             final ocrState = ocrCubit.state;
+
             if (ocrState is OcrSuccess) {
               final extractedData = ocrState.extractedData;
+
+              extractedData['file_url'] = downloadUrl;
+              extractedData['filename'] = file.path.split('/').last;
+              extractedData['file_type'] = file.path.split('.').last;
+
+              //await context.read<DocumentCubit>().addDocument(extractedData);
               context.push(PagesRoute.editDocumentPage.path, extra: extractedData);
             }
             // Navigator.of(context).popUntil((route) => route.isFirst); // zamyka preview i zostawia zdjęcie w liście
@@ -136,8 +176,6 @@ class _HomeTabState extends State<HomeTab> {
 
     final file = File(result.files.single.path!);
 
-    // nie dodajemy od razu do items
-
     await Navigator.push(
       context,
       MaterialPageRoute(
@@ -148,12 +186,20 @@ class _HomeTabState extends State<HomeTab> {
             Navigator.pop(context);
             _pickFile(context);
           },
-          onApprove: () {
-            // setState(() => items.add(file.path));
-            Navigator.pop(context);
-            ScaffoldMessenger.of(context).showSnackBar(
-              const SnackBar(content: Text("✅ PDF zaakceptowany!")),
-            );
+          onApprove: () async {
+            final ocrCubit = context.read<OcrCubit>();
+            await ocrCubit.sendFileForOcr(File(file.path));
+            final ocrState = ocrCubit.state;
+
+            if (ocrState is OcrSuccess) {
+              final extractedData = ocrState.extractedData;
+
+
+              //await context.read<DocumentCubit>().addDocument(extractedData);
+              context.push(
+                  PagesRoute.editDocumentPage.path, extra: extractedData);
+
+            }
           },
         ),
       ),

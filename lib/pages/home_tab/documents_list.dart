@@ -38,38 +38,6 @@ class DocumentsList extends StatelessWidget {
               extra: doc,
             );
           },
-          trailing: IconButton(
-            icon: const Icon(Icons.delete, color: Colors.redAccent),
-            onPressed: () async {
-              final confirm = await showDialog<bool>(
-                context: context,
-                builder: (dialogContext) => AlertDialog(
-                  title: const Text("Usuń dokument"),
-                  content: const Text("Czy na pewno chcesz usunąć ten dokument?"),
-                  actions: [
-                    TextButton(
-                      onPressed: () => Navigator.of(dialogContext).pop(false),
-                      child: const Text("Anuluj"),
-                    ),
-                    ElevatedButton(
-                      onPressed: () => Navigator.of(dialogContext).pop(true),
-                      style: ElevatedButton.styleFrom(backgroundColor: Colors.red),
-                      child: const Text("Usuń"),
-                    ),
-                  ],
-                ),
-              );
-
-              if (confirm == true) {
-                final docCubit = context.read<DocumentCubit>();
-                await docCubit.deleteDocument(doc['id'], userFirstName, userLastName);
-                onDelete(); // jeśli masz callback do odświeżenia listy
-                ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(content: Text("Dokument został usunięty")),
-                );
-              }
-            },
-          ),
         );
       },
     );

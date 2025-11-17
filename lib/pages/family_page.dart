@@ -41,7 +41,7 @@ class FamilyPage extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      "Członkowie rodziny",
+                      "Twoi podopieczni",
                       style: TextStyle(
                         color: Colors.white,
                         fontSize: 20,

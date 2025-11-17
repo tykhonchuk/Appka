@@ -166,5 +166,36 @@ class ProfileCubit extends Cubit<ProfileState> {
     }
   }
 
+  Future<void> fetchStats() async {
+    emit(ProfileLoading());
+
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      final token = prefs.getString('access_token');
+
+      final uri = Uri.parse('http://${ApiConfig.baseUrl}/user/stats');
+      final response = await http.get(
+        uri,
+        headers: {
+          'Authorization': 'Bearer $token',
+          'Content-Type': 'application/json',
+        },
+      );
+
+      if (response.statusCode == 200) {
+        final data = jsonDecode(response.body);
+        emit(ProfileStatsLoaded(
+          documents: data['documents'],
+          members: data['members'],
+          mbUsed: data['storage_used_mb'],
+        ));
+      } else {
+        emit(ProfileError(message: "Błąd pobierania statystyk"));
+      }
+    } catch (e) {
+      emit(ProfileError(message: "Błąd pobierania statystyk", error: e));
+    }
+  }
+
 
 }

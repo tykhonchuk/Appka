@@ -27,6 +27,19 @@ class ProfileUserLoaded extends ProfileState{
   List<Object> get props => [firstName, lastName, username];
 }
 
+class ProfileStatsLoaded extends ProfileState {
+  final int documents;
+  final int members;
+  final int mbUsed;
+
+  const ProfileStatsLoaded({
+    required this.documents,
+    required this.members,
+    required this.mbUsed,
+  });
+}
+
+
 class ProfileSuccess extends ProfileState {
   const ProfileSuccess([this.token]);
   final String? token;

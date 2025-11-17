@@ -44,7 +44,7 @@ class _HomePageState extends State<HomePage> {
         selectedItemColor: Colors.blueAccent,
         items: const [
           BottomNavigationBarItem(icon: Icon(Icons.home), label: "Home"),
-          BottomNavigationBarItem(icon: Icon(Icons.family_restroom), label: "Rodzina"),
+          BottomNavigationBarItem(icon: Icon(Icons.family_restroom), label: "Podopieczni"),
           BottomNavigationBarItem(icon: Icon(Icons.person), label: "Użytkownik"),
         ],
       ),
