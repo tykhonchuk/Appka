@@ -1,4 +1,5 @@
 import "package:appka/cubit/document_cubit.dart";
+import "package:appka/cubit/firebase_storage_cubit.dart";
 import "package:appka/cubit/ocr_cubit.dart";
 import "package:appka/pages/account_created_page.dart";
 import "package:appka/pages/add_document_page.dart";
@@ -8,6 +9,7 @@ import "package:appka/pages/delete_account_page.dart";
 import "package:appka/pages/document_details_page.dart";
 import "package:appka/pages/edit_document_page.dart";
 import "package:appka/pages/edit_profile_page.dart";
+import "package:appka/pages/family_member_details_page.dart";
 import "package:appka/pages/home_page.dart";
 import "package:appka/pages/preview_pdf_page.dart";
 import "package:appka/pages/preview_photo_page.dart";
@@ -20,6 +22,7 @@ import "package:appka/config/theme_light.dart";
 import "package:appka/pages/login_page.dart";
 import "package:appka/cubit/profile_cubit.dart";
 import "package:camera/camera.dart";
+import "package:firebase_auth/firebase_auth.dart";
 import "package:flutter/material.dart";
 import "package:flutter_bloc/flutter_bloc.dart";
 import "package:go_router/go_router.dart";
@@ -28,9 +31,25 @@ import "firebase_options.dart";
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  await Firebase.initializeApp(
-    options: DefaultFirebaseOptions.currentPlatform,
-  );
+
+  try {
+    // 🔥 Próba inicjalizacji z firebase_options.dart
+    await Firebase.initializeApp(
+      options: DefaultFirebaseOptions.currentPlatform,
+    );
+  } on FirebaseException catch (e) {
+    if (e.code == 'duplicate-app') {
+      print('Firebase już zainicjalizowany, używam istniejącej instancji.');
+    } else {
+      rethrow; // inny błąd – nie ignorujemy
+    }
+  }
+  final app = Firebase.app();
+  print('🔥 Firebase app: ${app.name}');
+  print('🔥 projectId: ${app.options.projectId}');
+  print('🔥 storageBucket z options: ${app.options.storageBucket}');
+  await FirebaseAuth.instance.signInAnonymously();
+
 
   final routeBuilders = {
     PagesRoute.welcomePage.path: (context, state) => const WelcomePage(),
@@ -79,7 +98,16 @@ void main() async {
       );
     } ,
     PagesRoute.editProfilePage.path: (context, state) => const EditProfilePage(),
-    // PagesRoute.familyPage.path: (context, state) => const FamilyPage(),
+
+    PagesRoute.familyMemberPage.path: (context, state) {
+      final member = state.extra as Map<String, dynamic>?;
+      if (member == null) {
+        return const Scaffold(
+          body: Center(child: Text("Brak danych członka rodziny")),
+        );
+      }
+      return MemberDetailPage(member: member);
+    },
   };
   final goRoute = GoRouter(
     initialLocation: PagesRoute.welcomePage.path,
@@ -103,6 +131,7 @@ void main() async {
         BlocProvider(create: (_) => ProfileCubit()),
         BlocProvider(create: (_) => OcrCubit()),
         BlocProvider(create: (_) => DocumentCubit()),
+        BlocProvider(create: (_) => FirebaseStorageCubit()),
       ],
       child: MaterialApp.router(
         routerConfig: goRoute,

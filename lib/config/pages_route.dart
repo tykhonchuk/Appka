@@ -15,7 +15,7 @@ enum PagesRoute{
   previewPhotoPage("/preview-image", "Preview Image"),
   previewPDFPage("/preview-pdf", "Preview PDF"),
   editProfilePage("/edit-profile", "Edit Profile Page"),
-
+  familyMemberPage("/family-member", "Family Page"),
   ;
 
   const PagesRoute(this.path, this.name);

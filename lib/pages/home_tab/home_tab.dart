@@ -11,6 +11,7 @@ import 'package:appka/pages/preview_pdf_page.dart';
 import 'package:appka/pages/preview_photo_page.dart';
 import 'package:camera/camera.dart';
 import 'package:file_picker/file_picker.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -30,14 +31,22 @@ class _HomeTabState extends State<HomeTab> {
   String userFirstName = "";
   String userLastName = "";
   List<Map<String, dynamic>> userDocuments = [];
+  File? pickedFile;
 
   @override
   void initState() {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) async {
       if (!mounted) return;
+      // Logowanie anonimowe
+      try {
+        final userCredential = await FirebaseAuth.instance.signInAnonymously();
+        print('Zalogowano anonimowo. UID: ${userCredential.user?.uid}');
+      } catch (e) {
+        print('Błąd logowania anonimowego: $e');
+      }
       await _loadUserName();
-      await _initCamera();
+      //await _initCamera();
     });
   }
 
@@ -85,15 +94,6 @@ class _HomeTabState extends State<HomeTab> {
     }
   }
 
-  Future<String> _sendToFirebase(File file)async{
-    final fileName = file.path.split('/').last;
-    final storageRef = FirebaseStorage.instance.ref();
-    final fileRef = storageRef.child("documents/${DateTime.now().millisecondsSinceEpoch}_$fileName");
-    await fileRef.putFile(file);
-    final downloadUrl = await fileRef.getDownloadURL();
-    return downloadUrl;
-  }
-
   Future<void> _pickImageFromCamera(BuildContext context) async {
     if (_cameras.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
@@ -108,9 +108,16 @@ class _HomeTabState extends State<HomeTab> {
           camera: _cameras.first,
           onImageTaken: (path) async {
             final ocrCubit = context.read<OcrCubit>();
+            pickedFile = File(path);
             await ocrCubit.sendFileForOcr(File(path));
             final ocrState = ocrCubit.state;
             if (ocrState is OcrSuccess) {
+              final extractedData = ocrState.extractedData;
+
+              // Dodaj informacje o pliku
+              extractedData['file'] = pickedFile;
+              extractedData['filename'] = pickedFile!.path.split('/').last;
+              extractedData['file_type'] = pickedFile!.path.split('.').last;
               context.push(
                   PagesRoute.editDocumentPage.path,
                   extra: ocrState.extractedData);
@@ -135,8 +142,6 @@ class _HomeTabState extends State<HomeTab> {
           onAccept: () async{
             final file = File(image.path);
 
-            final downloadUrl = await _sendToFirebase(file);
-
             final ocrCubit = context.read<OcrCubit>();
             await ocrCubit.sendFileForOcr(file);
             final ocrState = ocrCubit.state;
@@ -144,9 +149,11 @@ class _HomeTabState extends State<HomeTab> {
             if (ocrState is OcrSuccess) {
               final extractedData = ocrState.extractedData;
 
-              extractedData['file_url'] = downloadUrl;
-              extractedData['filename'] = file.path.split('/').last;
-              extractedData['file_type'] = file.path.split('.').last;
+              //extractedData['file_url'] = downloadUrl;
+              pickedFile = File(image.path);
+              extractedData['file'] = pickedFile;
+              extractedData['filename'] = pickedFile!.path.split('/').last;
+              extractedData['file_type'] = pickedFile!.path.split('.').last;
 
               //await context.read<DocumentCubit>().addDocument(extractedData);
               context.push(PagesRoute.editDocumentPage.path, extra: extractedData);
@@ -193,8 +200,10 @@ class _HomeTabState extends State<HomeTab> {
 
             if (ocrState is OcrSuccess) {
               final extractedData = ocrState.extractedData;
-
-
+              pickedFile = file;
+              extractedData['file'] = pickedFile;
+              extractedData['filename'] = pickedFile!.path.split('/').last;
+              extractedData['file_type'] = pickedFile!.path.split('.').last;
               //await context.read<DocumentCubit>().addDocument(extractedData);
               context.push(
                   PagesRoute.editDocumentPage.path, extra: extractedData);

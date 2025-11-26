@@ -1,3 +1,4 @@
+import 'package:appka/config/pages_route.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
@@ -77,7 +78,10 @@ class FamilyPage extends StatelessWidget {
                           final member = members[index];
                           return InkWell(
                             onTap: () {
-                              //context.go('/member/${member['id']}');
+                              // context.go(
+                              //   PagesRoute.familyMemberPage.path,
+                              //   extra: member
+                              // );
                               print("Kliknięto ${member['first_name']}");
                               // np. nawigacja do szczegółów
                             },

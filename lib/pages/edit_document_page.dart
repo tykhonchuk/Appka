@@ -1,5 +1,8 @@
+import 'dart:io';
+
 import 'package:appka/config/pages_route.dart';
 import 'package:appka/cubit/document_cubit.dart';
+import 'package:appka/cubit/firebase_storage_cubit.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
@@ -7,6 +10,7 @@ import 'package:go_router/go_router.dart';
 class EditDocumentPage extends StatefulWidget {
   final Map<String, dynamic>? initialData;
   const EditDocumentPage({super.key, this.initialData});
+
 
   @override
   State<EditDocumentPage> createState() => _EditDocumentPageState();
@@ -20,6 +24,8 @@ class _EditDocumentPageState extends State<EditDocumentPage> {
   late TextEditingController recommendationsController;
   late TextEditingController doctorController;
   late TextEditingController docTypeController;
+  late File? pickedFile;
+  late String? ocrText;
 
   @override
   void initState() {
@@ -31,6 +37,8 @@ class _EditDocumentPageState extends State<EditDocumentPage> {
     recommendationsController = TextEditingController(text: widget.initialData?["recommendations"] ?? "");
     doctorController = TextEditingController(text: widget.initialData?["doctor_name"] ?? "");
     docTypeController = TextEditingController(text: widget.initialData?["document_type"] ?? "");
+    pickedFile = widget.initialData?["file"];
+    ocrText = widget.initialData?["ocr_text"];
   }
 
   @override
@@ -64,7 +72,13 @@ class _EditDocumentPageState extends State<EditDocumentPage> {
                 TextField(controller: docTypeController, decoration: const InputDecoration(labelText: "Rodzaj dokumentu")),
                 const SizedBox(height: 20),
                 ElevatedButton(
-                  onPressed: () {
+                  onPressed: () async {
+                    final file = pickedFile;
+                    String? fileUrl;
+                    if (file != null) {
+                      final firebaseCubit = context.read<FirebaseStorageCubit>();
+                      fileUrl = await firebaseCubit.uploadFile(file);
+                    }
                     context.read<DocumentCubit>().addDocument({
                       'patient_first_name': firstNameController.text,
                       'patient_last_name': lastNameController.text,
@@ -73,10 +87,11 @@ class _EditDocumentPageState extends State<EditDocumentPage> {
                       'recommendations': recommendationsController.text,
                       'doctor_name': doctorController.text,
                       'document_type': docTypeController.text,
+                      'file_url': fileUrl,
                       'filename': 'document_${DateTime.now().millisecondsSinceEpoch}.pdf', // przykładowa nazwa
                       'file_type': 'jpg', // lub 'jpg' zależnie od tego co masz
                       'ocr_text': widget.initialData?["ocr_text"] ?? "",
-                    });
+                    },);
                   },
                   child: const Text("Zapisz"),
                 ),

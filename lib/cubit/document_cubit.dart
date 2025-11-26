@@ -12,34 +12,45 @@ part "document_state.dart";
 class DocumentCubit extends Cubit<DocumentState>{
   DocumentCubit() : super(const DocumentInitial());
 
-  void addDocument(Map<String, dynamic> documentData) async{
+  void addDocument(Map<String, dynamic> documentData) async {
     emit(const DocumentLoading());
 
-    try{
+    try {
+      String? fileUrl = documentData["file_url"];
+      String? filename = documentData["filename"];
+      String? fileType = documentData["file_type"];
+
+      // 1. Token i API
       final prefs = await SharedPreferences.getInstance();
       final token = prefs.getString('access_token');
+      final body = {
+        'patient_first_name': documentData['patient_first_name'],
+        'patient_last_name': documentData['patient_last_name'],
+        'visit_date': documentData['visit_date'],
+        'diagnosis': documentData['diagnosis'],
+        'recommendations': documentData['recommendations'],
+        'doctor_name': documentData['doctor_name'],
+        'document_type': documentData['document_type'],
+        'filename': filename,
+        'file_type': fileType,
+        'file_url': fileUrl,
+        'ocr_text': documentData['ocr_text'] ?? "",
+      };
+
+      print('📤 BODY wysyłane do /document/add: ${jsonEncode(body)}');
+
 
       final uri = Uri.parse('http://${ApiConfig.baseUrl}/document/add');
+
       final response = await http.post(
         uri,
         headers: {
           'Content-Type': 'application/json',
           'Authorization': 'Bearer $token',
         },
-        body: jsonEncode({
-          'patient_first_name': documentData['patient_first_name'],
-          'patient_last_name': documentData['patient_last_name'],
-          'visit_date': documentData['visit_date'],
-          'diagnosis': documentData['diagnosis'],
-          'recommendations': documentData['recommendations'],
-          'doctor_name': documentData['doctor_name'],
-          'document_type': documentData['document_type'],
-          'filename': documentData['filename'],
-          'file_type': documentData['file_type'],
-          'file_url': documentData['file_url'],
-          'ocr_text': documentData['ocr_text'] ?? "",
-        }),
+        body: jsonEncode(body),
       );
+
       if (response.statusCode == 200) {
         emit(const DocumentSuccess());
       } else {
@@ -47,10 +58,12 @@ class DocumentCubit extends Cubit<DocumentState>{
         emit(DocumentError(message: error));
       }
 
-    } catch (e){
+    } catch (e) {
       emit(DocumentError(error: e, message: "Błąd dodawania dokumentu"));
     }
   }
+
+
 
   Future<void> fetchDocumentsByPatientName(String firstName, String lastName) async {
     emit(const DocumentLoading());
