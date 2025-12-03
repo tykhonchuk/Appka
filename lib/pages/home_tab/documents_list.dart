@@ -19,6 +19,7 @@ class DocumentsList extends StatelessWidget {
     if (documents.isEmpty) return const Center(child: Text("Brak dokumentów"));
 
     return ListView.builder(
+      padding: const EdgeInsets.fromLTRB(5, 2, 5, 0),
       itemCount: documents.length,
       itemBuilder: (_, index) {
         final doc = documents[index];

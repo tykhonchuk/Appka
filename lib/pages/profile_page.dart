@@ -55,7 +55,7 @@ class _ProfilePageState extends State<ProfilePage> {
         setState(() {
           documents = state.documents;
           members = state.members;
-          mbUsed = state.mbUsed;
+          mbUsed = 25;
         });
       }
     }catch (e) {
@@ -99,27 +99,51 @@ class _ProfilePageState extends State<ProfilePage> {
   Widget _buildProfileButton({
     required String text,
     required VoidCallback onPressed,
-    // Color backgroundColor = Colors.blueAccent,
-    Color foregroundColor = Colors.black,
+    required IconData icon,
   }) {
     return Container(
       margin: const EdgeInsets.symmetric(vertical: 8, horizontal: 20),
-      width: double.infinity,
-      child: ElevatedButton(
-        style: ElevatedButton.styleFrom(
-          // backgroundColor: backgroundColor,
-          // foregroundColor: foregroundColor,
-          padding: const EdgeInsets.symmetric(vertical: 15),
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(12),
+      child: InkWell(
+        onTap: onPressed,
+        borderRadius: BorderRadius.circular(14),
+        child: Ink(
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(14),
+            border: Border.all(color: Colors.grey.shade300, width: 1.2),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black12.withOpacity(0.05),
+                blurRadius: 6,
+                offset: const Offset(0, 3),
+              ),
+            ],
           ),
-          textStyle: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+          child: Padding(
+            padding: const EdgeInsets.symmetric(vertical: 14, horizontal: 16),
+            child: Row(
+              children: [
+                Icon(icon, size: 22, color: Colors.blueAccent),
+                const SizedBox(width: 12),
+                Text(
+                  text,
+                  style: TextStyle(
+                    fontSize: 16,
+                    color: Colors.blueAccent,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+                const Spacer(),
+                Icon(Icons.arrow_forward_ios,
+                    size: 18, color: Colors.blueAccent),
+              ],
+            ),
+          ),
         ),
-        onPressed: onPressed,
-        child: Text(text),
       ),
     );
   }
+
 
   @override
   Widget build(BuildContext context) {
@@ -216,33 +240,38 @@ class _ProfilePageState extends State<ProfilePage> {
               ),
               const SizedBox(height: 20),
               // Przyciski
-              _buildProfileButton(
-                text: "Edytuj profil",
-                onPressed: () {
-                  context.push(PagesRoute.editProfilePage.path);
-                },
-              ),
-              _buildProfileButton(
-                text: "Zmień hasło",
-                foregroundColor: Colors.black,
-                onPressed: () {
-                  context.push(PagesRoute.changePasswordPage.path);
-                },
-              ),
-              _buildProfileButton(
-                text: "Usuń konto",
-                // backgroundColor: Colors.red,
-                onPressed: () {
-                  context.push(PagesRoute.deletePage.path);
-                },
-              ),
-              _buildProfileButton(
-                text: "Wyloguj się",
-                // backgroundColor: Colors.grey.shade700,
-                onPressed: () {
-                  _confirmLogout(context);
-                },
-              ),
+          _buildProfileButton(
+            text: "Edytuj profil",
+            icon: Icons.edit_outlined,
+            onPressed: () {
+              context.push(PagesRoute.editProfilePage.path);
+            },
+          ),
+
+          _buildProfileButton(
+            text: "Zmień hasło",
+            icon: Icons.lock_outline,
+            onPressed: () {
+              context.push(PagesRoute.changePasswordPage.path);
+            },
+          ),
+
+          _buildProfileButton(
+            text: "Usuń konto",
+            icon: Icons.delete_outline,
+            onPressed: () {
+              context.push(PagesRoute.deletePage.path);
+            },
+          ),
+
+          _buildProfileButton(
+            text: "Wyloguj się",
+            icon: Icons.logout,
+            onPressed: () {
+              _confirmLogout(context);
+            },
+          ),
+
             ],
           ),
         ),
