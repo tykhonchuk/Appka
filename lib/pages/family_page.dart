@@ -12,6 +12,14 @@ class FamilyPage extends StatelessWidget {
     return BlocProvider(
       create: (context) => FamilyCubit()..fetchFamilyMembers(), // od razu fetch
       child: Scaffold(
+        floatingActionButton: FloatingActionButton(
+          onPressed: () {
+            //context.push(PagesRoute.addFamilyMemberPage.path);
+          },
+          backgroundColor: Colors.blueAccent,
+          child: const Icon(Icons.person_add, color: Colors.white),
+        ),
+
         body: Column(
           children: [
             // Nagłówek
@@ -37,7 +45,7 @@ class FamilyPage extends StatelessWidget {
                 ],
               ),
               child: const Padding(
-                padding: EdgeInsets.all(18.0),
+                padding: EdgeInsets.fromLTRB(15, 30, 15, 5),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
@@ -57,13 +65,13 @@ class FamilyPage extends StatelessWidget {
             // Kafelki członków rodziny z BlocBuilder
             Expanded(
               child: Padding(
-                padding: const EdgeInsets.all(16.0),
+                padding: const EdgeInsets.all(10.0),
                 child: BlocBuilder<FamilyCubit, FamilyState>(
                   builder: (context, state) {
                     if (state is FamilyLoading) {
                       return const Center(child: CircularProgressIndicator());
                     } else if (state is FamilyError) {
-                      return Center(child: Text("error"));
+                      return const Center(child: Text("error"));
                     } else if (state is FamilyLoaded) {
                       final members = state.members;
                       return GridView.builder(
@@ -78,12 +86,10 @@ class FamilyPage extends StatelessWidget {
                           final member = members[index];
                           return InkWell(
                             onTap: () {
-                              // context.go(
-                              //   PagesRoute.familyMemberPage.path,
-                              //   extra: member
-                              // );
-                              print("Kliknięto ${member['first_name']}");
-                              // np. nawigacja do szczegółów
+                              context.push(
+                                PagesRoute.familyMemberPage.path,
+                                extra: member,
+                              );
                             },
                             borderRadius: BorderRadius.circular(12),
                             child: Card(
@@ -114,7 +120,7 @@ class FamilyPage extends StatelessWidget {
                                         ? "Brak dokumentów"
                                         : member['documents_count'] == 1
                                         ? "1 dokument"
-                                        : "${member['documents_count']} dokumenty", // <--- liczba dokumentów
+                                        : "${member['documents_count']} dokumenty",
                                     style: const TextStyle(
                                       fontSize: 14,
                                       color: Colors.grey,
@@ -127,7 +133,7 @@ class FamilyPage extends StatelessWidget {
                         },
                       );
                     } else {
-                      return Container();
+                      return const SizedBox.shrink();
                     }
                   },
                 ),
