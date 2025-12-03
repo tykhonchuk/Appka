@@ -1,5 +1,8 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+
+import '../cubit/document_cubit.dart';
 
 class DocumentDetailsPage extends StatelessWidget {
   final Map<String, dynamic> document;
@@ -89,6 +92,61 @@ class DocumentDetailsPage extends StatelessWidget {
     }
   }
 
+  Future<void> _handleDelete(BuildContext context) async {
+    final confirm = await showDialog<bool>(
+      context: context,
+      builder: (dialogContext) => AlertDialog(
+        title: const Text("Usuń dokument"),
+        content: const Text("Czy na pewno chcesz usunąć ten dokument?"),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(dialogContext).pop(false),
+            child: const Text("Anuluj"),
+          ),
+          ElevatedButton(
+            onPressed: () => Navigator.of(dialogContext).pop(true),
+            style: ElevatedButton.styleFrom(backgroundColor: Colors.red),
+            child: const Text("Usuń"),
+          ),
+        ],
+      ),
+    );
+
+    if (confirm != true) return;
+
+    final docId = document['id'];
+    if (docId == null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text("Brak ID dokumentu – nie można usunąć")),
+      );
+      return;
+    }
+
+    final firstName = (document['patient_first_name'] ?? '').toString();
+    final lastName = (document['patient_last_name'] ?? '').toString();
+
+    try {
+      await context
+          .read<DocumentCubit>()
+          .deleteDocument(docId as int, firstName, lastName);
+
+      if (!context.mounted) return;
+
+      // jeśli usunięcie się powiodło, DocumentCubit już odświeżył listę,
+      // więc możemy wrócić do poprzedniego ekranu
+      Navigator.of(context).pop(true);
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text("Dokument został usunięty")),
+      );
+    } catch (e) {
+      if (!context.mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text("Nie udało się usunąć dokumentu")),
+      );
+    }
+  }
+
 
   @override
   Widget build(BuildContext context) {
@@ -146,34 +204,9 @@ class DocumentDetailsPage extends StatelessWidget {
                     backgroundColor: Colors.red,
                       foregroundColor: Colors.white
                   ),
-                  onPressed: () async {
-                    final confirm = await showDialog<bool>(
-                      context: context,
-                      builder: (dialogContext) => AlertDialog(
-                        title: const Text("Usuń dokument"),
-                        content: const Text("Czy na pewno chcesz usunąć ten dokument?"),
-                        actions: [
-                          TextButton(
-                            onPressed: () => Navigator.of(dialogContext).pop(false),
-                            child: const Text("Anuluj"),
-                          ),
-                          ElevatedButton(
-                            onPressed: () => Navigator.of(dialogContext).pop(true),
-                            style: ElevatedButton.styleFrom(backgroundColor: Colors.red),
-                            child: const Text("Usuń"),
-                          ),
-                        ],
-                      ),
-                    );
-
-                    if (confirm == true) {
-                      // Tutaj wywołanie cubit do usunięcia dokumentu
-                      // np. context.read<DocumentCubit>().deleteDocument(document['id'], ...);
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(content: Text("Dokument został usunięty")),
-                      );
-                    }
-                  },
+                  onPressed: () {
+                    _handleDelete(context);
+                  }
                 ),
               ],
             ),
