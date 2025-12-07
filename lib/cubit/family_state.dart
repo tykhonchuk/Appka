@@ -23,6 +23,10 @@ class FamilySuccess extends FamilyState {
   final String? token;
 }
 
+class FamilyDeleteSuccess extends FamilyState {
+  const FamilyDeleteSuccess();
+}
+
 class FamilyError extends FamilyState {
   const FamilyError({this.error, this.message});
   final Object? error;

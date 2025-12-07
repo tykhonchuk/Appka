@@ -1,4 +1,5 @@
 import "package:appka/cubit/document_cubit.dart";
+import "package:appka/cubit/family_cubit.dart";
 import "package:appka/cubit/firebase_storage_cubit.dart";
 import "package:appka/cubit/ocr_cubit.dart";
 import "package:appka/pages/account_created_page.dart";
@@ -132,6 +133,7 @@ void main() async {
         BlocProvider(create: (_) => OcrCubit()),
         BlocProvider(create: (_) => DocumentCubit()),
         BlocProvider(create: (_) => FirebaseStorageCubit()),
+        BlocProvider(create: (_) => FamilyCubit()),
       ],
       child: MaterialApp.router(
         routerConfig: goRoute,

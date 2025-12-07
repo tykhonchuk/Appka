@@ -35,8 +35,44 @@ class FamilyCubit extends Cubit<FamilyState> {
     } catch (e){
       emit(FamilyError(error: e, message: "Błąd pobierania członków rodziny"));
     }
-
-
   }
+
+  Future<void> deleteMember(int memberId) async {
+    emit(const FamilyLoading());
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      final token = prefs.getString('access_token');
+
+
+      final uri = Uri.parse(
+        'http://${ApiConfig.baseUrl}/family/delete-member/$memberId',
+      );
+
+      final response = await http.delete(
+        uri,
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': 'Bearer $token',
+        },
+      );
+
+      if (response.statusCode == 204 || response.statusCode == 200) {
+        await fetchFamilyMembers();
+        //emit(const FamilyDeleteSuccess());
+      } else {
+        final body = response.body.isNotEmpty ? response.body : '';
+        emit(FamilyError(
+          error: Exception('HTTP ${response.statusCode} $body'),
+          message: 'Nie udało się usunąć podopiecznego',
+        ));
+      }
+    } catch (e) {
+      emit(FamilyError(
+        error: e,
+        message: 'Nie udało się usunąć podopiecznego',
+      ));
+    }
+  }
+
 
 }

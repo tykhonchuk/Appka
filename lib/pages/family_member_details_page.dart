@@ -62,7 +62,7 @@ class _MemberDetailPageState extends State<MemberDetailPage> {
 
     try {
       final id = widget.member['id'] as int;
-      //await context.read<FamilyCubit>().deleteMember(id);
+      await context.read<FamilyCubit>().deleteMember(id);
 
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
@@ -77,9 +77,6 @@ class _MemberDetailPageState extends State<MemberDetailPage> {
   }
 
   void _onEditMember() {
-    // jeśli masz osobny ekran edycji – tu możesz zrobić push
-    // np. context.push(PagesRoute.editFamilyMemberPage.path, extra: widget.member);
-    // Na razie tylko placeholder:
     ScaffoldMessenger.of(context).showSnackBar(
       const SnackBar(content: Text('Edycja podopiecznego – do zaimplementowania')),
     );
@@ -91,9 +88,53 @@ class _MemberDetailPageState extends State<MemberDetailPage> {
     final lastName = widget.member['last_name'] as String? ?? '';
     final documentsCount = widget.member['documents_count'] ?? 0;
 
+    String docsLabel;
+    if (documentsCount == 0) {
+      docsLabel = 'Brak dokumentów';
+    } else if (documentsCount == 1) {
+      docsLabel = '1 dokument';
+    } else {
+      docsLabel = '$documentsCount dokumenty';
+    }
+
     return Scaffold(
       appBar: AppBar(
-        title: Text('$firstName $lastName'),
+        // NIEBIESKI, ZAOKRĄGLONY APPBAR
+        backgroundColor: Colors.blueAccent,
+        foregroundColor: Colors.white,
+        elevation: 4,
+        shape: const RoundedRectangleBorder(
+          borderRadius: BorderRadius.vertical(
+            bottom: Radius.circular(24),
+          ),
+        ),
+        // domyślna strzałka back
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back),
+          onPressed: () => Navigator.of(context).pop(),
+        ),
+        // zamiast słowa "Podopieczny" – imię + liczba dokumentów
+        title: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              '$firstName $lastName',
+              style: const TextStyle(
+                fontSize: 18,
+                fontWeight: FontWeight.bold,
+              ),
+              overflow: TextOverflow.ellipsis,
+            ),
+            const SizedBox(height: 2),
+            Text(
+              docsLabel,
+              style: const TextStyle(
+                fontSize: 13,
+                color: Colors.white70,
+              ),
+            ),
+          ],
+        ),
         actions: [
           IconButton(
             icon: const Icon(Icons.edit),
@@ -109,56 +150,9 @@ class _MemberDetailPageState extends State<MemberDetailPage> {
       ),
       body: Column(
         children: [
-          // karta z danymi podopiecznego
-          Padding(
-            padding: const EdgeInsets.all(16.0),
-            child: Card(
-              elevation: 3,
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(16),
-              ),
-              child: Padding(
-                padding: const EdgeInsets.all(16.0),
-                child: Row(
-                  children: [
-                    CircleAvatar(
-                      radius: 28,
-                      backgroundColor: Colors.blueAccent.shade100,
-                      child: const Icon(Icons.person, size: 32, color: Colors.white),
-                    ),
-                    const SizedBox(width: 16),
-                    Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            '$firstName $lastName',
-                            style: const TextStyle(
-                              fontSize: 18,
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
-                          const SizedBox(height: 4),
-                          Text(
-                            documentsCount == 0
-                                ? 'Brak dokumentów'
-                                : documentsCount == 1
-                                ? '1 dokument'
-                                : '$documentsCount dokumentów',
-                            style: const TextStyle(
-                              fontSize: 14,
-                              color: Colors.grey,
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            ),
-          ),
+          const SizedBox(height: 16),
 
+          // Nagłówek sekcji dokumentów
           const Padding(
             padding: EdgeInsets.symmetric(horizontal: 16.0),
             child: Align(
@@ -174,7 +168,7 @@ class _MemberDetailPageState extends State<MemberDetailPage> {
           ),
           const SizedBox(height: 8),
 
-          // lista dokumentów z DocumentCubit
+          // 📄 Lista dokumentów z DocumentCubit
           Expanded(
             child: BlocBuilder<DocumentCubit, DocumentState>(
               builder: (context, state) {
@@ -182,7 +176,9 @@ class _MemberDetailPageState extends State<MemberDetailPage> {
                   return const Center(child: CircularProgressIndicator());
                 } else if (state is DocumentError) {
                   return Center(
-                    child: Text(state.message ?? 'Nie udało się załadować dokumentów'),
+                    child: Text(
+                      state.message ?? 'Nie udało się załadować dokumentów',
+                    ),
                   );
                 } else if (state is DocumentLoadedList) {
                   final docs = state.documents;
@@ -202,17 +198,21 @@ class _MemberDetailPageState extends State<MemberDetailPage> {
                       final doctor = doc['doctor_name'] ?? '';
 
                       return ListTile(
-                        leading: const Icon(Icons.insert_drive_file, color: Colors.blue),
-                        title: Text('$title ${date.isNotEmpty ? ' – $date' : ''}'),
-                        subtitle: doctor.isNotEmpty
-                            ? Text('Lekarz: $doctor')
-                            : null,
+                        leading: const Icon(
+                          Icons.insert_drive_file,
+                          color: Colors.blue,
+                        ),
+                        title: Text(
+                          date.isNotEmpty ? '$title – $date' : title,
+                        ),
+                        subtitle:
+                        doctor.isNotEmpty ? Text('Lekarz: $doctor') : null,
+                        trailing: const Icon(Icons.chevron_right),
                         onTap: () {
-                          // jeśli masz podgląd szczegółów dokumentu:
-                          // context.push(
-                          //   PagesRoute.documentDetailsPage.path,
-                          //   extra: doc,
-                          // );
+                          context.push(
+                            PagesRoute.documentDetailsPage.path,
+                            extra: doc,
+                          );
                         },
                       );
                     },
