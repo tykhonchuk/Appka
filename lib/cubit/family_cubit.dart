@@ -76,6 +76,40 @@ class FamilyCubit extends Cubit<FamilyState> {
     }
   }
 
+  Future<void> editMember(int id, String firstName, String lastName) async {
+    emit(const FamilyLoading());
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      final token = prefs.getString('access_token');
+
+      final uri = Uri.parse('http://${ApiConfig.baseUrl}/family/edit-member/$id');
+
+      final response = await http.put(
+        uri,
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': 'Bearer $token',
+        },
+        body: jsonEncode({
+          'first_name': firstName,
+          'last_name': lastName,
+        }),
+      );
+
+      if (response.statusCode == 200) {
+        await fetchFamilyMembers();
+        emit(const FamilyEditSuccess());
+      } else {
+        emit(FamilyError(
+          message: "Nie udało się zaktualizować danych",
+          error: Exception(response.body),
+        ));
+      }
+    } catch (e) {
+      emit(FamilyError(message: "Błąd podczas edycji", error: e));
+    }
+  }
+
 
   Future<void> deleteMember(int memberId) async {
     emit(const FamilyLoading());

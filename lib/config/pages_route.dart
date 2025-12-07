@@ -17,6 +17,7 @@ enum PagesRoute{
   editProfilePage("/edit-profile", "Edit Profile Page"),
   familyMemberPage("/family-member", "Family Page"),
   addFamilyMemberPage("/add-family-member", "Add Family Member Page"),
+  editFamilyMemberPage("/edit-family-member", "Edit Family Member Page"),
 
   ;
 

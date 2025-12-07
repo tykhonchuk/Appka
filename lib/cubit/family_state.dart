@@ -27,6 +27,10 @@ class FamilyAddSuccess extends FamilyState {
   const FamilyAddSuccess();
 }
 
+class FamilyEditSuccess extends FamilyState{
+  const FamilyEditSuccess();
+}
+
 class FamilyDeleteSuccess extends FamilyState {
   const FamilyDeleteSuccess();
 }

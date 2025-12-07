@@ -10,6 +10,7 @@ import "package:appka/pages/change_password_page.dart";
 import "package:appka/pages/delete_account_page.dart";
 import "package:appka/pages/document_details_page.dart";
 import "package:appka/pages/edit_document_page.dart";
+import "package:appka/pages/edit_family_member.dart";
 import "package:appka/pages/edit_profile_page.dart";
 import "package:appka/pages/family_member_details_page.dart";
 import "package:appka/pages/home_page.dart";
@@ -101,7 +102,10 @@ void main() async {
     } ,
     PagesRoute.editProfilePage.path: (context, state) => const EditProfilePage(),
     PagesRoute.addFamilyMemberPage.path: (context, state) => const AddFamilyMemberPage(),
-
+    PagesRoute.editFamilyMemberPage.path: (context, state) {
+      final member = state.extra as Map<String, dynamic>?;
+      return EditFamilyMemberPage(member: member!);
+    },
     PagesRoute.familyMemberPage.path: (context, state) {
       final member = state.extra as Map<String, dynamic>?;
       if (member == null) {

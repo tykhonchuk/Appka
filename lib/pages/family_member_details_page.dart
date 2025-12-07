@@ -76,10 +76,16 @@ class _MemberDetailPageState extends State<MemberDetailPage> {
     }
   }
 
-  void _onEditMember() {
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text('Edycja podopiecznego – do zaimplementowania')),
+  void _onEditMember() async {
+    final updated = await context.push<bool>(
+      PagesRoute.editFamilyMemberPage.path,
+      extra: widget.member,
     );
+    if (updated == true) {
+      // odśwież dane konkretnego członka + dokumenty
+      _loadMemberDocuments();
+      context.read<FamilyCubit>().fetchFamilyMembers();
+    }
   }
 
   @override
