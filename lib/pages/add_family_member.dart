@@ -23,7 +23,7 @@ class _AddFamilyMemberPageState extends State<AddFamilyMemberPage> {
     );
 
     if (!mounted) return;
-
+    context.read<FamilyCubit>().fetchFamilyMembers();
     Navigator.pop(context);
     ScaffoldMessenger.of(context).showSnackBar(
       const SnackBar(content: Text("Podopieczny został dodany")),
