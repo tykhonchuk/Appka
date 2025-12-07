@@ -24,6 +24,8 @@ class _ProfilePageState extends State<ProfilePage> {
     super.initState();
     _loadUserData();
     _loadUserStats();
+    context.read<ProfileCubit>().fetchUser();
+
   }
 
   Future<void> _loadUserData() async {

@@ -35,10 +35,16 @@ class _HomeTabState extends State<HomeTab> {
   String userLastName = "";
   List<Map<String, dynamic>> userDocuments = [];
 
-  // 🔍 wyszukiwanie + filtr
+  // 🔍 wyszukiwanie
   final TextEditingController _searchController = TextEditingController();
   String _searchQuery = '';
-  String _selectedType = 'Wszystkie';
+
+  // ✅ nowe filtry (checkboxy)
+  List<String> _selectedDoctors = [];
+  List<String> _selectedDiagnoses = [];
+  List<String> _selectedTypes = [];
+  DateTime? _dateFrom;
+  DateTime? _dateTo;
 
   File? pickedFile;
 
@@ -46,7 +52,6 @@ class _HomeTabState extends State<HomeTab> {
   void initState() {
     super.initState();
 
-    // reagujemy na wpisywanie w polu szukania
     _searchController.addListener(() {
       setState(() {
         _searchQuery = _searchController.text;
@@ -56,17 +61,15 @@ class _HomeTabState extends State<HomeTab> {
     WidgetsBinding.instance.addPostFrameCallback((_) async {
       if (!mounted) return;
 
-      // anonimowe logowanie do Firebase (na wszelki wypadek)
       try {
-        final userCredential = await FirebaseAuth.instance.signInAnonymously();
+        final userCredential =
+        await FirebaseAuth.instance.signInAnonymously();
         print('Zalogowano anonimowo. UID: ${userCredential.user?.uid}');
       } catch (e) {
         print('Błąd logowania anonimowego: $e');
       }
 
       await _loadUserName();
-      // jeśli chcesz używać kamerę, możesz odkomentować:
-      // await _initCamera();
     });
   }
 
@@ -93,36 +96,68 @@ class _HomeTabState extends State<HomeTab> {
 
   Future<void> _loadUserDocuments() async {
     final docCubit = context.read<DocumentCubit>();
-    await docCubit.fetchDocumentsByPatientName(userFirstName, userLastName);
+    await docCubit.fetchDocumentsByPatientName(
+        userFirstName, userLastName);
     final state = docCubit.state;
+
     if (state is DocumentLoadedList) {
       setState(() => userDocuments = state.documents);
     }
   }
 
-  Future<void> _initCamera() async {
+  // ======================
+  // ✅ DANE DO FILTRÓW
+  // ======================
+
+  List<String> get _availableDoctors {
+    final set = <String>{};
+    for (final doc in userDocuments) {
+      final d = (doc['doctor_name'] ?? '').toString();
+      if (d.isNotEmpty) set.add(d);
+    }
+    return set.toList();
+  }
+
+  List<String> get _availableDiagnoses {
+    final set = <String>{};
+    for (final doc in userDocuments) {
+      final d = (doc['diagnosis'] ?? '').toString();
+      if (d.isNotEmpty) set.add(d);
+    }
+    return set.toList();
+  }
+
+  List<String> get _availableTypes {
+    final set = <String>{};
+    for (final doc in userDocuments) {
+      final t = (doc['document_type'] ?? '').toString();
+      if (t.isNotEmpty) set.add(t);
+    }
+    return set.toList();
+  }
+  DateTime? _parseDate(String date) {
     try {
-      _cameras = await availableCameras();
-      if (_cameras.isNotEmpty) {
-        _controller = CameraController(
-          _cameras.first,
-          ResolutionPreset.medium,
-        );
-        await _controller!.initialize();
-        if (!mounted) return;
-        setState(() {});
-      }
-    } catch (e) {
-      print("Błąd inicjalizacji kamery: $e");
+      final parts = date.split('/');
+      if (parts.length != 3) return null;
+
+      final day = int.parse(parts[0]);
+      final month = int.parse(parts[1]);
+      final year = int.parse(parts[2]);
+
+      return DateTime(year, month, day);
+    } catch (_) {
+      return null;
     }
   }
 
-  // 🔍 LOGIKA FILTROWANIA
+  // ======================
+  // ✅ FILTROWANIE
+  // ======================
 
   List<Map<String, dynamic>> get _filteredDocuments {
     List<Map<String, dynamic>> docs = List.from(userDocuments);
 
-    // filtr tekstowy
+    // 🔍 tekst
     if (_searchQuery.isNotEmpty) {
       final q = _searchQuery.toLowerCase();
       docs = docs.where((doc) {
@@ -132,41 +167,75 @@ class _HomeTabState extends State<HomeTab> {
         (doc['patient_last_name'] ?? '').toString().toLowerCase();
         final docType =
         (doc['document_type'] ?? '').toString().toLowerCase();
-        final doctorName =
+        final doctor =
         (doc['doctor_name'] ?? '').toString().toLowerCase();
-        final visitDate =
-        (doc['visit_date'] ?? '').toString().toLowerCase(); // 👈 NOWE
+        final diagnosis =
+        (doc['diagnosis'] ?? '').toString().toLowerCase();
+        final date =
+        (doc['visit_date'] ?? '').toString().toLowerCase();
 
         return firstName.contains(q) ||
             lastName.contains(q) ||
             docType.contains(q) ||
-            doctorName.contains(q) ||
-            visitDate.contains(q); // 👈 NOWE
+            doctor.contains(q) ||
+            diagnosis.contains(q) ||
+            date.contains(q);
+      }).toList();
+    }
+    // 📅 filtr po dacie (dd/MM/yyyy)
+    if (_dateFrom != null || _dateTo != null) {
+      docs = docs.where((doc) {
+        final dateStr = (doc['visit_date'] ?? '').toString();
+        if (dateStr.isEmpty) return false;
+
+        final docDate = _parseDate(dateStr);
+        if (docDate == null) return false;
+
+        if (_dateFrom != null && docDate.isBefore(_dateFrom!)) {
+          return false;
+        }
+
+        if (_dateTo != null && docDate.isAfter(_dateTo!)) {
+          return false;
+        }
+
+        return true;
       }).toList();
     }
 
-    // filtr po typie dokumentu
-    if (_selectedType != 'Wszystkie') {
+    // 👨‍⚕️ lekarz
+    if (_selectedDoctors.isNotEmpty) {
       docs = docs.where((doc) {
-        return (doc['document_type'] ?? '') == _selectedType;
+        final name = (doc['doctor_name'] ?? '').toString();
+        return _selectedDoctors.contains(name);
+      }).toList();
+    }
+
+    // 🧾 diagnoza
+    if (_selectedDiagnoses.isNotEmpty) {
+      docs = docs.where((doc) {
+        final diag = (doc['diagnosis'] ?? '').toString();
+        return _selectedDiagnoses.contains(diag);
+      }).toList();
+    }
+
+    // 📄 typ dokumentu
+    if (_selectedTypes.isNotEmpty) {
+      docs = docs.where((doc) {
+        final type = (doc['document_type'] ?? '').toString();
+        return _selectedTypes.contains(type);
       }).toList();
     }
 
     return docs;
   }
 
-  List<String> get _availableTypes {
-    final types = <String>{};
-    for (final doc in userDocuments) {
-      final t = (doc['document_type'] ?? '').toString();
-      if (t.isNotEmpty) types.add(t);
-    }
-    return ['Wszystkie', ...types.toList()];
-  }
+  // ======================
+  // 📸 Kamera / galeria / PDF
+  // ======================
 
   Future<void> _pickImageFromCamera(BuildContext context) async {
     if (_cameras.isEmpty) {
-      // gdyby _initCamera nie zostało wywołane
       try {
         _cameras = await availableCameras();
       } catch (e) {
@@ -191,11 +260,13 @@ class _HomeTabState extends State<HomeTab> {
             pickedFile = File(path);
             await ocrCubit.sendFileForOcr(pickedFile!);
             final ocrState = ocrCubit.state;
+
             if (ocrState is OcrSuccess) {
               final extractedData = ocrState.extractedData;
 
               extractedData['file'] = pickedFile;
-              extractedData['filename'] = pickedFile!.path.split('/').last;
+              extractedData['filename'] =
+                  pickedFile!.path.split('/').last;
               extractedData['file_type'] =
                   pickedFile!.path.split('.').last;
 
@@ -212,7 +283,8 @@ class _HomeTabState extends State<HomeTab> {
 
   Future<void> _pickImageFromGallery(BuildContext context) async {
     final picker = ImagePicker();
-    final XFile? image = await picker.pickImage(source: ImageSource.gallery);
+    final XFile? image =
+    await picker.pickImage(source: ImageSource.gallery);
     if (image == null) return;
 
     await Navigator.push(
@@ -232,7 +304,8 @@ class _HomeTabState extends State<HomeTab> {
 
               pickedFile = file;
               extractedData['file'] = pickedFile;
-              extractedData['filename'] = pickedFile!.path.split('/').last;
+              extractedData['filename'] =
+                  pickedFile!.path.split('/').last;
               extractedData['file_type'] =
                   pickedFile!.path.split('.').last;
 
@@ -247,7 +320,7 @@ class _HomeTabState extends State<HomeTab> {
             _pickImageFromGallery(context);
           },
           onBack: () =>
-              Navigator.of(context).popUntil((route) => route.isFirst),
+              Navigator.of(context).popUntil((r) => r.isFirst),
         ),
       ),
     );
@@ -283,7 +356,8 @@ class _HomeTabState extends State<HomeTab> {
 
               pickedFile = file;
               extractedData['file'] = pickedFile;
-              extractedData['filename'] = pickedFile!.path.split('/').last;
+              extractedData['filename'] =
+                  pickedFile!.path.split('/').last;
               extractedData['file_type'] =
                   pickedFile!.path.split('.').last;
 
@@ -298,6 +372,10 @@ class _HomeTabState extends State<HomeTab> {
     );
   }
 
+  // ======================
+  // 🧩 UI
+  // ======================
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -310,19 +388,33 @@ class _HomeTabState extends State<HomeTab> {
         },
         body: Column(
           children: [
-            // 🔍 szeroki pasek szukania + ikonka filtra po prawej
             DocumentsFilterBar(
               searchController: _searchController,
-              selectedType: _selectedType,
-              availableTypes: _availableTypes,
-              onTypeChanged: (value) {
-                setState(() {
-                  _selectedType = value;
-                });
+              doctors: _availableDoctors,
+              diagnoses: _availableDiagnoses,
+              documentTypes: _availableTypes,
+              selectedDoctors: _selectedDoctors,
+              selectedDiagnoses: _selectedDiagnoses,
+              selectedTypes: _selectedTypes,
+              onDoctorsChanged: (list) {
+                setState(() => _selectedDoctors = list);
+              },
+              onDiagnosesChanged: (list) {
+                setState(() => _selectedDiagnoses = list);
+              },
+              onTypesChanged: (list) {
+                setState(() => _selectedTypes = list);
+              },
+              dateFrom: _dateFrom,
+              dateTo: _dateTo,
+              onDateFromChanged: (date) {
+                setState(() => _dateFrom = date);
+              },
+              onDateToChanged: (date) {
+                setState(() => _dateTo = date);
               },
             ),
 
-            // 📄 lista dokumentów (już przefiltrowana)
             Expanded(
               child: DocumentsList(
                 documents: _filteredDocuments,
