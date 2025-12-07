@@ -63,6 +63,56 @@ class DocumentCubit extends Cubit<DocumentState>{
     }
   }
 
+  Future<void> updateDocument(int documentId, Map<String, dynamic> documentData) async {
+    emit(const DocumentLoading());
+
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      final token = prefs.getString('access_token');
+
+      String? fileUrl = documentData["file_url"];
+      String? filename = documentData["filename"];
+      String? fileType = documentData["file_type"];
+
+      final body = {
+        'patient_first_name': documentData['patient_first_name'],
+        'patient_last_name': documentData['patient_last_name'],
+        'visit_date': documentData['visit_date'],
+        'diagnosis': documentData['diagnosis'],
+        'recommendations': documentData['recommendations'],
+        'doctor_name': documentData['doctor_name'],
+        'document_type': documentData['document_type'],
+        'filename': filename,
+        'file_type': fileType,
+        'file_url': fileUrl,
+        'ocr_text': documentData['ocr_text'] ?? "",
+      };
+
+      print('✏️ BODY wysyłane do /document/update-document/$documentId: ${jsonEncode(body)}');
+
+      final uri = Uri.parse(
+        'http://${ApiConfig.baseUrl}/document/update-document/$documentId',
+      );
+
+      final response = await http.put(
+        uri,
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': 'Bearer $token',
+        },
+        body: jsonEncode(body),
+      );
+
+      if (response.statusCode == 200) {
+        emit(const DocumentSuccess());
+      } else {
+        final error = jsonDecode(response.body)["detail"] ?? "Nieznany błąd";
+        emit(DocumentError(message: error));
+      }
+    } catch (e) {
+      emit(DocumentError(error: e, message: "Błąd edycji dokumentu"));
+    }
+  }
 
 
   Future<void> fetchDocumentsByPatientName(String firstName, String lastName) async {

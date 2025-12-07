@@ -1,6 +1,8 @@
 import 'dart:io';
+import 'package:appka/config/pages_route.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:go_router/go_router.dart';
 
 import '../cubit/document_cubit.dart';
 
@@ -194,7 +196,7 @@ class DocumentDetailsPage extends StatelessWidget {
                   ),
                   onPressed: () {
                     // Tutaj logika przejścia do edycji dokumentu
-                    // np. context.push(PagesRoute.editDocumentPage.path, extra: document);
+                    context.push(PagesRoute.editDocumentPage.path, extra: document);
                   },
                 ),
                 ElevatedButton.icon(
