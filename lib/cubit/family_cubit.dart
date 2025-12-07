@@ -37,6 +37,46 @@ class FamilyCubit extends Cubit<FamilyState> {
     }
   }
 
+  Future<void> addMember(String firstName, String lastName) async {
+    emit(const FamilyLoading());
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      final token = prefs.getString('access_token');
+
+      final uri = Uri.parse('http://${ApiConfig.baseUrl}/family/add-member');
+
+      final response = await http.post(
+        uri,
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': 'Bearer $token',
+        },
+        body: jsonEncode({
+          'first_name': firstName,
+          'last_name': lastName,
+        }),
+      );
+
+      if (response.statusCode == 201 || response.statusCode == 200) {
+        // po dodaniu od razu pobieramy zaktualizowaną listę
+        await fetchFamilyMembers();
+        emit(const FamilyAddSuccess());
+      } else {
+        final body = response.body.isNotEmpty ? response.body : '';
+        emit(FamilyError(
+          error: Exception('HTTP ${response.statusCode} $body'),
+          message: 'Nie udało się dodać podopiecznego',
+        ));
+      }
+    } catch (e) {
+      emit(FamilyError(
+        error: e,
+        message: 'Nie udało się dodać podopiecznego',
+      ));
+    }
+  }
+
+
   Future<void> deleteMember(int memberId) async {
     emit(const FamilyLoading());
     try {

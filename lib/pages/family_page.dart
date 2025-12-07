@@ -27,8 +27,7 @@ class _FamilyPageState extends State<FamilyPage> {
     return Scaffold(
       floatingActionButton: FloatingActionButton(
         onPressed: () {
-          // TODO: przejście do ekranu dodawania podopiecznego
-          // context.push(PagesRoute.addFamilyMemberPage.path);
+          context.push(PagesRoute.addFamilyMemberPage.path);
         },
         backgroundColor: Colors.blueAccent,
         child: const Icon(Icons.person_add, color: Colors.white),

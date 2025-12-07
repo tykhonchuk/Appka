@@ -4,6 +4,7 @@ import "package:appka/cubit/firebase_storage_cubit.dart";
 import "package:appka/cubit/ocr_cubit.dart";
 import "package:appka/pages/account_created_page.dart";
 import "package:appka/pages/add_document_page.dart";
+import "package:appka/pages/add_family_member.dart";
 import "package:appka/pages/camera_page.dart";
 import "package:appka/pages/change_password_page.dart";
 import "package:appka/pages/delete_account_page.dart";
@@ -99,6 +100,7 @@ void main() async {
       );
     } ,
     PagesRoute.editProfilePage.path: (context, state) => const EditProfilePage(),
+    PagesRoute.addFamilyMemberPage.path: (context, state) => const AddFamilyMemberPage(),
 
     PagesRoute.familyMemberPage.path: (context, state) {
       final member = state.extra as Map<String, dynamic>?;
