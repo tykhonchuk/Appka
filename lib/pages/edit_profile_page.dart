@@ -31,7 +31,6 @@ class _EditProfilePageState extends State<EditProfilePage> {
       firstCtrl = TextEditingController();
       lastCtrl = TextEditingController();
       emailCtrl = TextEditingController();
-
       context.read<ProfileCubit>().fetchUser();
     }
   }
@@ -75,18 +74,20 @@ class _EditProfilePageState extends State<EditProfilePage> {
       backgroundColor: Colors.grey.shade100,
 
       appBar: AppBar(
+        title: const Text("Edycja profilu"),
         backgroundColor: Colors.blueAccent,
         foregroundColor: Colors.white,
-        title: const Text("Edycja profilu"),
-        elevation: 0,
+        elevation: 4,
+        centerTitle: true,
+        shape: const RoundedRectangleBorder(
+          borderRadius: BorderRadius.vertical(bottom: Radius.circular(24)),
+        ),
       ),
 
       body: BlocListener<ProfileCubit, ProfileState>(
         listener: (context, state) {
           if (state is ProfileSuccess) {
-            // odśwież profil po edycji
             context.read<ProfileCubit>().fetchUser();
-
             ScaffoldMessenger.of(context).showSnackBar(
               const SnackBar(content: Text("Zapisano zmiany")),
             );
@@ -100,7 +101,7 @@ class _EditProfilePageState extends State<EditProfilePage> {
         },
         child: SafeArea(
           child: SingleChildScrollView(
-            padding: const EdgeInsets.fromLTRB(20, 30, 20, 20),
+            padding: const EdgeInsets.fromLTRB(20, 30, 20, 100),
             child: Form(
               key: _formKey,
               child: Column(
@@ -126,32 +127,55 @@ class _EditProfilePageState extends State<EditProfilePage> {
                     icon: Icons.email,
                     keyboard: TextInputType.emailAddress,
                     validator: (v) =>
-                    v != null && v.contains("@") ? null : "Wpisz poprawny email",
+                    v != null && v.contains("@") ? null : "Podaj poprawny email",
                   ),
-                  const SizedBox(height: 30),
+                  const SizedBox(height: 40),
 
-                  SizedBox(
-                    width: 200,
-                    child: ElevatedButton(
-                      onPressed: () {
-                        if (_formKey.currentState!.validate()) {
-                          context.read<ProfileCubit>().updateUser(
-                            firstName: firstCtrl.text,
-                            lastName: lastCtrl.text,
-                            username: emailCtrl.text,
-                          );
-                        }
-                      },
-                      style: ElevatedButton.styleFrom(
-                          backgroundColor: Colors.blueAccent,
-                          foregroundColor: Colors.white
+                  InkWell(
+                    onTap: () {
+                      if (_formKey.currentState!.validate()) {
+                        context.read<ProfileCubit>().updateUser(
+                          firstName: firstCtrl.text,
+                          lastName: lastCtrl.text,
+                          username: emailCtrl.text,
+                        );
+                      }
+                    },
+                    borderRadius: BorderRadius.circular(16),
+                    child: Container(
+                      width: double.infinity,
+                      padding: const EdgeInsets.symmetric(vertical: 16),
+                      decoration: BoxDecoration(
+                        gradient: LinearGradient(
+                          colors: [
+                            Colors.blueAccent.shade700,
+                            Colors.blueAccent.shade400,
+                          ],
+                          begin: Alignment.topLeft,
+                          end: Alignment.bottomRight,
+                        ),
+                        borderRadius: BorderRadius.circular(16),
+                        boxShadow: [
+                          BoxShadow(
+                            color: Colors.blueAccent.withOpacity(0.3),
+                            blurRadius: 10,
+                            offset: const Offset(0, 4),
+                          ),
+                        ],
                       ),
-                      child: const Text(
-                        "Zapisz dane",
-                        style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                      child: const Center(
+                        child: Text(
+                          "Zapisz zmiany",
+                          style: TextStyle(
+                            color: Colors.white,
+                            fontWeight: FontWeight.w600,
+                            fontSize: 16,
+                          ),
+                        ),
                       ),
                     ),
                   ),
+
                 ],
               ),
             ),
