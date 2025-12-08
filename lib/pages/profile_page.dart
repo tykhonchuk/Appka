@@ -23,9 +23,11 @@ class _ProfilePageState extends State<ProfilePage> {
   void initState() {
     super.initState();
     _loadUserData();
-    _loadUserStats();
-    context.read<ProfileCubit>().fetchUser();
 
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      context.read<ProfileCubit>().fetchUser();
+      context.read<ProfileCubit>().fetchStats();
+    });
   }
 
   Future<void> _loadUserData() async {
@@ -149,20 +151,24 @@ class _ProfilePageState extends State<ProfilePage> {
 
   @override
   Widget build(BuildContext context) {
-    return BlocProvider(
-      create: (_) => ProfileCubit(),
-      child: BlocListener<ProfileCubit, ProfileState>(
-        listener: (context, state) {
-          if (state is ProfileSuccess) {
-            ScaffoldMessenger.of(context).showSnackBar(
-              const SnackBar(content: Text("Hasło zostało zmienione!")),
-            );
-          } else if (state is ProfileError) {
-            ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(content: Text(state.message ?? "Błąd zmiany hasła!")),
-            );
-          }
-        },
+    return BlocListener<ProfileCubit, ProfileState>(
+      listener: (context, state) {
+        if (state is ProfileUserLoaded) {
+          setState(() {
+            firstName = state.firstName;
+            lastName = state.lastName;
+            email = state.username;
+          });
+        }
+
+        if (state is ProfileStatsLoaded) {
+          setState(() {
+            documents = state.documents;
+            members = state.members;
+            mbUsed = state.mbUsed;
+          });
+        }
+      },
         child: Scaffold(
           body: Column(
             children: [
@@ -277,7 +283,6 @@ class _ProfilePageState extends State<ProfilePage> {
             ],
           ),
         ),
-      ),
     );
   }
 

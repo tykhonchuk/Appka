@@ -21,17 +21,21 @@ class _EditProfilePageState extends State<EditProfilePage> {
   void initState() {
     super.initState();
 
-    final profileState = context.read<ProfileCubit>().state;
+    firstCtrl = TextEditingController();
+    lastCtrl = TextEditingController();
+    emailCtrl = TextEditingController();
 
-    if (profileState is ProfileUserLoaded) {
-      firstCtrl = TextEditingController(text: profileState.firstName);
-      lastCtrl = TextEditingController(text: profileState.lastName);
-      emailCtrl = TextEditingController(text: profileState.username);
+    final cubit = context.read<ProfileCubit>();
+    final state = cubit.state;
+
+    // jeśli dane są już w pamięci – wypełnij od razu
+    if (state is ProfileUserLoaded) {
+      firstCtrl.text = state.firstName;
+      lastCtrl.text = state.lastName;
+      emailCtrl.text = state.username;
     } else {
-      firstCtrl = TextEditingController();
-      lastCtrl = TextEditingController();
-      emailCtrl = TextEditingController();
-      context.read<ProfileCubit>().fetchUser();
+      // jeśli nie – dociągnij z backendu
+      cubit.fetchUser();
     }
   }
 
@@ -86,13 +90,20 @@ class _EditProfilePageState extends State<EditProfilePage> {
 
       body: BlocListener<ProfileCubit, ProfileState>(
         listener: (context, state) {
+          if (state is ProfileUserLoaded) {
+            firstCtrl.text = state.firstName;
+            lastCtrl.text = state.lastName;
+            emailCtrl.text = state.username;
+          }
           if (state is ProfileSuccess) {
             context.read<ProfileCubit>().fetchUser();
+
             ScaffoldMessenger.of(context).showSnackBar(
               const SnackBar(content: Text("Zapisano zmiany")),
             );
-            context.pop();
+            context.pop(); // wróć do ProfilePage
           }
+
           if (state is ProfileError) {
             ScaffoldMessenger.of(context).showSnackBar(
               SnackBar(content: Text(state.message ?? "Błąd zapisu")),
@@ -175,7 +186,6 @@ class _EditProfilePageState extends State<EditProfilePage> {
                       ),
                     ),
                   ),
-
                 ],
               ),
             ),
