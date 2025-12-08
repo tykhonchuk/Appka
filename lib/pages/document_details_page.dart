@@ -3,7 +3,9 @@ import 'package:appka/config/pages_route.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
-
+import 'package:flutter_pdfview/flutter_pdfview.dart';
+import 'package:http/http.dart' as http;
+import 'package:path_provider/path_provider.dart';
 import '../cubit/document_cubit.dart';
 
 class DocumentDetailsPage extends StatelessWidget {
@@ -32,67 +34,193 @@ class DocumentDetailsPage extends StatelessWidget {
     );
   }
 
-  Widget _buildFilePreview() {
+  Widget _buildFilePreview(BuildContext context) {
     final fileUrl = document['file_url'] ?? '';
     if (fileUrl.isEmpty) return const SizedBox();
 
-    final fileType = document['file_type'] ?? '';
-    if (fileType.contains('jpg') || fileType.contains('png')) {
-      return ClipRRect(
-        borderRadius: BorderRadius.circular(12),
-        child: Container(
-          margin: const EdgeInsets.only(top: 20),
-          decoration: BoxDecoration(
-            boxShadow: [
-              BoxShadow(
-                color: Colors.black26,
-                blurRadius: 8,
-                offset: const Offset(0, 4),
-              )
-            ],
-          ),
-          child: Image.network(
-            fileUrl,
-            fit: BoxFit.cover,
-            loadingBuilder: (context, child, loadingProgress) {
-              if (loadingProgress == null) return child;
-              return const Center(child: CircularProgressIndicator());
-            },
-            errorBuilder: (context, error, stackTrace) {
-              return const Center(child: Text("Nie udało się wczytać obrazka"));
-            },
+    final fileType = (document['file_type'] ?? '').toString();
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        const SizedBox(height: 16),
+
+        // ✅ Informacja, że plik jest załączony
+        const Row(
+          children: [
+            Icon(Icons.attach_file, color: Colors.green),
+            SizedBox(width: 6),
+            Text(
+              "Plik załączony",
+              style: TextStyle(
+                fontSize: 16,
+                fontWeight: FontWeight.w600,
+                color: Colors.green,
+              ),
+            ),
+          ],
+        ),
+
+        const SizedBox(height: 10),
+
+        // ✅ Klikalny podgląd
+        GestureDetector(
+          onTap: () {
+            _showFullScreenPreview(context, fileUrl, fileType);
+          },
+          child: Container(
+            padding: const EdgeInsets.all(12),
+            decoration: BoxDecoration(
+              color: Colors.grey.shade100,
+              borderRadius: BorderRadius.circular(12),
+              border: Border.all(color: Colors.blueAccent),
+            ),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Icon(
+                  fileType.contains('pdf')
+                      ? Icons.picture_as_pdf
+                      : Icons.image,
+                  color: Colors.blueAccent,
+                  size: 40,
+                ),
+                const SizedBox(width: 12),
+                const Text(
+                  "Kliknij, aby otworzyć podgląd",
+                  style: TextStyle(fontSize: 16),
+                ),
+              ],
+            ),
           ),
         ),
+      ],
+    );
+  }
+
+  void _showFullScreenPreview(
+      BuildContext context,
+      String fileUrl,
+      String fileType,
+      ) async {
+    const contentFactor = 0.8; // 80% ekranu
+
+    if (fileType.toLowerCase().contains('pdf')) {
+      // --- PDF ---
+      final response = await http.get(Uri.parse(fileUrl));
+      final dir = await getTemporaryDirectory();
+      final file = File('${dir.path}/temp_preview.pdf');
+      await file.writeAsBytes(response.bodyBytes);
+
+      if (!context.mounted) return;
+
+      showDialog(
+        context: context,
+        barrierDismissible: true,
+        builder: (_) {
+          return Dialog(
+            backgroundColor: Colors.transparent,
+            insetPadding: EdgeInsets.zero,
+            child: Stack(
+              children: [
+                // szare półprzezroczyste tło
+                GestureDetector(
+                  onTap: () => Navigator.of(context).pop(),
+                  child: Container(
+                    color: Colors.black.withOpacity(0.6),
+                  ),
+                ),
+
+                // okno z PDF – 80% ekranu
+                Center(
+                  child: FractionallySizedBox(
+                    widthFactor: contentFactor,
+                    heightFactor: contentFactor,
+                    child: ClipRRect(
+                      borderRadius: BorderRadius.circular(16),
+                      child: PDFView(filePath: file.path),
+                    ),
+                  ),
+                ),
+
+                // przycisk zamknięcia
+                Positioned(
+                  top: 40,
+                  right: 20,
+                  child: SafeArea(
+                    child: IconButton(
+                      style: IconButton.styleFrom(
+                        backgroundColor: Colors.black54,
+                        foregroundColor: Colors.white,
+                      ),
+                      icon: const Icon(Icons.close),
+                      onPressed: () => Navigator.of(context).pop(),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          );
+        },
       );
     } else {
-      return GestureDetector(
-        onTap: () {
-          // Możesz np. otworzyć PDF w przeglądarce lub w pakiecie PDF viewer
-          // launchUrl(Uri.parse(fileUrl));
+      // --- OBRAZ ---
+      showDialog(
+        context: context,
+        barrierDismissible: true,
+        builder: (_) {
+          return Dialog(
+            backgroundColor: Colors.transparent,
+            insetPadding: EdgeInsets.zero,
+            child: Stack(
+              children: [
+                GestureDetector(
+                  onTap: () => Navigator.of(context).pop(),
+                  child: Container(
+                    color: Colors.black.withOpacity(0.6),
+                  ),
+                ),
+
+                Center(
+                  child: FractionallySizedBox(
+                    widthFactor: contentFactor,
+                    heightFactor: contentFactor,
+                    child: ClipRRect(
+                      borderRadius: BorderRadius.circular(16),
+                      child: InteractiveViewer(
+                        child: Image.network(
+                          fileUrl,
+                          fit: BoxFit.cover, // brak białych pasków
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
+
+                Positioned(
+                  top: 40,
+                  right: 20,
+                  child: SafeArea(
+                    child: IconButton(
+                      style: IconButton.styleFrom(
+                        backgroundColor: Colors.black54,
+                        foregroundColor: Colors.white,
+                      ),
+                      icon: const Icon(Icons.close),
+                      onPressed: () => Navigator.of(context).pop(),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          );
         },
-        child: Container(
-          margin: const EdgeInsets.only(top: 20),
-          padding: const EdgeInsets.all(20),
-          decoration: BoxDecoration(
-            color: Colors.redAccent.withOpacity(0.1),
-            borderRadius: BorderRadius.circular(12),
-            border: Border.all(color: Colors.redAccent),
-          ),
-          child: const Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Icon(Icons.picture_as_pdf, size: 50, color: Colors.redAccent),
-              SizedBox(width: 10),
-              Text(
-                "PDF Dokument",
-                style: TextStyle(fontSize: 18, color: Colors.redAccent),
-              ),
-            ],
-          ),
-        ),
       );
     }
   }
+
+
+
 
   Future<void> _handleDelete(BuildContext context) async {
     final confirm = await showDialog<bool>(
@@ -157,6 +285,12 @@ class DocumentDetailsPage extends StatelessWidget {
         title: const Text("Szczegóły dokumentu"),
         backgroundColor: Colors.blueAccent,
         foregroundColor: Colors.white,
+        elevation: 4,
+        shape: const RoundedRectangleBorder(
+          borderRadius: BorderRadius.vertical(
+            bottom: Radius.circular(24),
+          ),
+        ),
       ),
       body: Padding(
         padding: const EdgeInsets.all(16),
@@ -182,33 +316,49 @@ class DocumentDetailsPage extends StatelessWidget {
                 ),
               ),
             ),
-            _buildFilePreview(),
+            _buildFilePreview(context),
             const SizedBox(height: 20),
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceEvenly,
               children: [
-                ElevatedButton.icon(
-                  icon: const Icon(Icons.edit, color: Colors.white),
-                  label: const Text("Edytuj"),
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.blueAccent,
-                    foregroundColor: Colors.white
+                Expanded(
+                  child: ElevatedButton.icon(
+                    icon: const Icon(Icons.edit, color: Colors.white),
+                    label: const Text("Edytuj"),
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Colors.blueAccent,
+                      foregroundColor: Colors.white,
+                      padding: const EdgeInsets.symmetric(vertical: 14),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(14),
+                      ),
+                      elevation: 3,
+                    ),
+                    onPressed: () {
+                      // Tutaj logika przejścia do edycji dokumentu
+                      context.push(PagesRoute.editDocumentPage.path, extra: document);
+                    },
                   ),
-                  onPressed: () {
-                    // Tutaj logika przejścia do edycji dokumentu
-                    context.push(PagesRoute.editDocumentPage.path, extra: document);
-                  },
                 ),
-                ElevatedButton.icon(
-                  icon: const Icon(Icons.delete, color: Colors.white),
-                  label: const Text("Usuń"),
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.red,
-                      foregroundColor: Colors.white
+                const SizedBox(width: 12),
+
+                Expanded(
+                  child: ElevatedButton.icon(
+                    icon: const Icon(Icons.delete, color: Colors.white),
+                    label: const Text("Usuń"),
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Colors.red,
+                      foregroundColor: Colors.white,
+                      padding: const EdgeInsets.symmetric(vertical: 14),
+                      shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(14),
+                      ),
+                      elevation: 3,
+                    ),
+                    onPressed: () {
+                      _handleDelete(context);
+                    }
                   ),
-                  onPressed: () {
-                    _handleDelete(context);
-                  }
                 ),
               ],
             ),
