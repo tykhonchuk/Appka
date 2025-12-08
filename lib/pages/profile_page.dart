@@ -90,7 +90,7 @@ class _ProfilePageState extends State<ProfilePage> {
             ),
             onPressed: () {
               Navigator.of(ctx).pop();
-              context.push(PagesRoute.loginPage.path);
+              context.go(PagesRoute.loginPage.path);
             },
             child: const Text("Wyloguj"),
           ),
