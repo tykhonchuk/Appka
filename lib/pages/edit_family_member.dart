@@ -28,19 +28,26 @@ class _EditFamilyMemberPageState extends State<EditFamilyMemberPage> {
   void _saveMember() async {
     if (!_formKey.currentState!.validate()) return;
 
+    final first = _firstNameController.text.trim();
+    final last = _lastNameController.text.trim();
+
+    final updated = {
+      ...widget.member,
+      "first_name": first,
+      "last_name": last,
+    };
+
     await context.read<FamilyCubit>().editMember(
       widget.member['id'],
-      _firstNameController.text.trim(),
-      _lastNameController.text.trim(),
+      first,
+      last,
     );
 
     if (!mounted) return;
 
-    Navigator.pop(context);
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text("Dane zostały zaktualizowane")),
-    );
+    Navigator.pop(context, updated);
   }
+
 
   @override
   Widget build(BuildContext context) {
@@ -57,7 +64,20 @@ class _EditFamilyMemberPageState extends State<EditFamilyMemberPage> {
         iconTheme: const IconThemeData(color: Colors.white),
       ),
 
-      body: SingleChildScrollView(
+      body: BlocListener<FamilyCubit, FamilyState>(
+        listener: (context, state) {
+          if (state is FamilyEditSuccess) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              const SnackBar(content: Text("Dane zostały zaktualizowane")),
+            );
+          }
+          if (state is FamilyError) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(content: Text(state.message ?? "Błąd aktualizacji")),
+            );
+          }
+        },
+      child: SingleChildScrollView(
         child: Column(
           children: [
             const SizedBox(height: 24),
@@ -128,6 +148,7 @@ class _EditFamilyMemberPageState extends State<EditFamilyMemberPage> {
             )
           ],
         ),
+      ),
       ),
     );
   }

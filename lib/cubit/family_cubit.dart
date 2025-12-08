@@ -98,7 +98,7 @@ class FamilyCubit extends Cubit<FamilyState> {
 
       if (response.statusCode == 200) {
         await fetchFamilyMembers();
-        emit(const FamilyEditSuccess());
+        //emit(const FamilyEditSuccess());
       } else {
         emit(FamilyError(
           message: "Nie udało się zaktualizować danych",

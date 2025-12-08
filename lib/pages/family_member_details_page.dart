@@ -19,15 +19,18 @@ class MemberDetailPage extends StatefulWidget {
 }
 
 class _MemberDetailPageState extends State<MemberDetailPage> {
+  late Map<String, dynamic> _member;
+
   @override
   void initState() {
     super.initState();
+    _member = Map<String, dynamic>.from(widget.member);
     _loadMemberDocuments();
   }
 
   Future<void> _loadMemberDocuments() async {
-    final firstName = widget.member['first_name'] as String? ?? '';
-    final lastName = widget.member['last_name'] as String? ?? '';
+    final firstName = _member['first_name'] as String? ?? '';
+    final lastName = _member['last_name'] as String? ?? '';
 
     await context
         .read<DocumentCubit>()
@@ -77,22 +80,28 @@ class _MemberDetailPageState extends State<MemberDetailPage> {
   }
 
   void _onEditMember() async {
-    final updated = await context.push<bool>(
+    final updated = await context.push<Map<String, dynamic>>(
       PagesRoute.editFamilyMemberPage.path,
-      extra: widget.member,
+      extra: _member,
     );
-    if (updated == true) {
-      // odśwież dane konkretnego członka + dokumenty
+    if (updated != null && mounted) {
+      setState(() {
+        _member = updated;
+      });
       _loadMemberDocuments();
-      context.read<FamilyCubit>().fetchFamilyMembers();
     }
+    // if (updated == true) {
+    //   // odśwież dane konkretnego członka + dokumenty
+    //   _loadMemberDocuments();
+    //   context.read<FamilyCubit>().fetchFamilyMembers();
+    // }
   }
 
   @override
   Widget build(BuildContext context) {
-    final firstName = widget.member['first_name'] as String? ?? '';
-    final lastName = widget.member['last_name'] as String? ?? '';
-    final documentsCount = widget.member['documents_count'] ?? 0;
+    final firstName = _member['first_name'] as String? ?? '';
+    final lastName = _member['last_name'] as String? ?? '';
+    final documentsCount = _member['documents_count'] ?? 0;
 
     String docsLabel;
     if (documentsCount == 0) {
