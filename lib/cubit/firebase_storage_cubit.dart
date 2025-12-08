@@ -19,6 +19,15 @@ class FirebaseStorageCubit extends Cubit<FirebaseState> {
         print("❌ Plik nie istnieje lokalnie!");
         return null;
       }
+      String ext = '';
+      final path = file.path;
+      if (path.contains('.')){
+        ext = path.split('.').last.toLowerCase();
+      }
+      print('➡rozszerzenie: $ext');
+      if (ext.isEmpty){
+        ext = 'png';
+      }
 
       // upewniamy się, że user jest zalogowany
       var user = FirebaseAuth.instance.currentUser;
@@ -35,7 +44,7 @@ class FirebaseStorageCubit extends Cubit<FirebaseState> {
       final uid = user.uid;
       final fileName = "${DateTime
           .now()
-          .millisecondsSinceEpoch}.png";
+          .millisecondsSinceEpoch}.$ext";
       print("➡ Nazwa pliku w Storage: $fileName, uid: $uid");
 
       // ŚCIEŻKA Z UID: documents/<uid>/<fileName>

@@ -212,16 +212,25 @@ class _MemberDetailPageState extends State<MemberDetailPage> {
                       final date = doc['visit_date'] ?? '';
                       final doctor = doc['doctor_name'] ?? '';
 
+                      // 🔍 odczyt typu pliku
+                      final fileType = (doc['file_type'] ?? '').toString().toLowerCase();
+                      final isImage = fileType.contains('jpg') ||
+                          fileType.contains('jpeg') ||
+                          fileType.contains('png');
+                      final isPdf = fileType.contains('pdf');
+
                       return ListTile(
-                        leading: const Icon(
-                          Icons.insert_drive_file,
-                          color: Colors.blue,
-                        ),
+                        leading: isImage
+                            ? const Icon(Icons.image, color: Colors.blueAccent, size: 30)
+                            : isPdf
+                            ? const Icon(Icons.picture_as_pdf,
+                            color: Colors.redAccent, size: 30)
+                            : const Icon(Icons.insert_drive_file,
+                            color: Colors.grey, size: 30),
                         title: Text(
                           date.isNotEmpty ? '$title – $date' : title,
                         ),
-                        subtitle:
-                        doctor.isNotEmpty ? Text('Lekarz: $doctor') : null,
+                        subtitle: doctor.isNotEmpty ? Text('Lekarz: $doctor') : null,
                         trailing: const Icon(Icons.chevron_right),
                         onTap: () {
                           context.push(
