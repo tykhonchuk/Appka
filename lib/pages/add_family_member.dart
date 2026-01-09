@@ -33,7 +33,6 @@ class _AddFamilyMemberPageState extends State<AddFamilyMemberPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      // 🔵 Gradient + zaokrąglone rogi jak w FamilyPage
       appBar: AppBar(
         backgroundColor: Colors.blueAccent,
         elevation: 4,
@@ -54,7 +53,6 @@ class _AddFamilyMemberPageState extends State<AddFamilyMemberPage> {
           children: [
             const SizedBox(height: 24),
 
-            // Avatar jak w MemberDetailPage
             CircleAvatar(
               radius: 40,
               backgroundColor: Colors.blueAccent.shade100,
@@ -69,7 +67,6 @@ class _AddFamilyMemberPageState extends State<AddFamilyMemberPage> {
                 key: _formKey,
                 child: Column(
                   children: [
-                    // ✏ Imię
                     TextFormField(
                       controller: _firstNameController,
                       decoration: InputDecoration(
@@ -86,7 +83,6 @@ class _AddFamilyMemberPageState extends State<AddFamilyMemberPage> {
                     ),
                     const SizedBox(height: 16),
 
-                    // ✏ Nazwisko
                     TextFormField(
                       controller: _lastNameController,
                       decoration: InputDecoration(
@@ -104,7 +100,6 @@ class _AddFamilyMemberPageState extends State<AddFamilyMemberPage> {
 
                     const SizedBox(height: 30),
 
-                    // 🔵 Niepełna szerokość, styl jak przycisków u Ciebie
                     SizedBox(
                       width: double.infinity,
                       child: ElevatedButton(

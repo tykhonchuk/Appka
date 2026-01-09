@@ -46,7 +46,6 @@ class DocumentsFilterBar extends StatelessWidget {
         borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
       ),
       builder: (context) {
-        // lokalne zmienne do dat
         DateTime? _localDateFrom = dateFrom;
         DateTime? _localDateTo = dateTo;
 
@@ -65,7 +64,6 @@ class DocumentsFilterBar extends StatelessWidget {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    // nagłówek z przyciskiem Wyczyść
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
@@ -95,7 +93,6 @@ class DocumentsFilterBar extends StatelessWidget {
                     ),
                     const SizedBox(height: 16),
 
-                    // LEKARZ
                     ExpansionTile(
                       title: const Text("Lekarz"),
                       children: doctors.map((doctor) {
@@ -116,7 +113,6 @@ class DocumentsFilterBar extends StatelessWidget {
                       }).toList(),
                     ),
 
-                    // DIAGNOZA
                     ExpansionTile(
                       title: const Text("Diagnoza"),
                       children: diagnoses.map((diagnosis) {
@@ -137,7 +133,6 @@ class DocumentsFilterBar extends StatelessWidget {
                       }).toList(),
                     ),
 
-                    // TYP DOKUMENTU
                     ExpansionTile(
                       title: const Text("Typ dokumentu"),
                       children: documentTypes.map((type) {
@@ -158,7 +153,6 @@ class DocumentsFilterBar extends StatelessWidget {
                       }).toList(),
                     ),
 
-                    // DATA od–do
                     ExpansionTile(
                       title: const Text("Data"),
                       children: [
@@ -211,7 +205,6 @@ class DocumentsFilterBar extends StatelessWidget {
 
                     const SizedBox(height: 16),
 
-                    // PRZYCISK ZASTOSUJ
                     SizedBox(
                       width: double.infinity,
                       child: ElevatedButton(
@@ -235,7 +228,6 @@ class DocumentsFilterBar extends StatelessWidget {
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
       child: Row(
         children: [
-          // WYSZUKIWANIE
           Expanded(
             child: TextField(
               controller: searchController,
@@ -253,7 +245,6 @@ class DocumentsFilterBar extends StatelessWidget {
             ),
           ),
           const SizedBox(width: 10),
-          // FILTR
           InkWell(
             onTap: () => _openFilterMenu(context),
             borderRadius: BorderRadius.circular(12),

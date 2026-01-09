@@ -1,8 +1,8 @@
-import 'package:appka/config/pages_route.dart';
-import 'package:appka/cubit/family_cubit.dart';
-import 'package:flutter/material.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:go_router/go_router.dart';
+import "package:appka/config/pages_route.dart";
+import "package:appka/cubit/family_cubit.dart";
+import "package:flutter/material.dart";
+import "package:flutter_bloc/flutter_bloc.dart";
+import "package:go_router/go_router.dart";
 
 class FamilyPage extends StatefulWidget {
   const FamilyPage({super.key});
@@ -15,7 +15,6 @@ class _FamilyPageState extends State<FamilyPage> {
   @override
   void initState() {
     super.initState();
-    // pobieramy listę podopiecznych po wejściu na ekran
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (!mounted) return;
       context.read<FamilyCubit>().fetchFamilyMembers();
@@ -34,7 +33,6 @@ class _FamilyPageState extends State<FamilyPage> {
       ),
       body: Column(
         children: [
-          // 🔵 Nagłówek
           Container(
             width: double.infinity,
             padding: const EdgeInsets.symmetric(vertical: 20, horizontal: 16),
@@ -74,7 +72,6 @@ class _FamilyPageState extends State<FamilyPage> {
             ),
           ),
 
-          // 📋 Kafelki członków rodziny
           Expanded(
             child: Padding(
               padding: const EdgeInsets.all(10.0),
@@ -157,7 +154,6 @@ class _FamilyPageState extends State<FamilyPage> {
                       },
                     );
                   } else {
-                    // FamilyInitial itd.
                     return const SizedBox.shrink();
                   }
                 },

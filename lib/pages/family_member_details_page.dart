@@ -1,10 +1,9 @@
-import 'package:flutter/material.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:go_router/go_router.dart';
-
-import 'package:appka/cubit/document_cubit.dart';
-import 'package:appka/cubit/family_cubit.dart';
-import 'package:appka/config/pages_route.dart';
+import "package:flutter/material.dart";
+import "package:flutter_bloc/flutter_bloc.dart";
+import "package:go_router/go_router.dart";
+import "package:appka/cubit/document_cubit.dart";
+import "package:appka/cubit/family_cubit.dart";
+import "package:appka/config/pages_route.dart";
 
 class MemberDetailPage extends StatefulWidget {
   final Map<String, dynamic> member;
@@ -71,7 +70,7 @@ class _MemberDetailPageState extends State<MemberDetailPage> {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Podopieczny został usunięty')),
       );
-      context.pop(); // wróć do listy podopiecznych
+      context.pop();
     } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Nie udało się usunąć podopiecznego')),
@@ -90,11 +89,6 @@ class _MemberDetailPageState extends State<MemberDetailPage> {
       });
       _loadMemberDocuments();
     }
-    // if (updated == true) {
-    //   // odśwież dane konkretnego członka + dokumenty
-    //   _loadMemberDocuments();
-    //   context.read<FamilyCubit>().fetchFamilyMembers();
-    // }
   }
 
   @override
@@ -114,7 +108,6 @@ class _MemberDetailPageState extends State<MemberDetailPage> {
 
     return Scaffold(
       appBar: AppBar(
-        // NIEBIESKI, ZAOKRĄGLONY APPBAR
         backgroundColor: Colors.blueAccent,
         foregroundColor: Colors.white,
         elevation: 4,
@@ -123,12 +116,10 @@ class _MemberDetailPageState extends State<MemberDetailPage> {
             bottom: Radius.circular(24),
           ),
         ),
-        // domyślna strzałka back
         leading: IconButton(
           icon: const Icon(Icons.arrow_back),
           onPressed: () => Navigator.of(context).pop(),
         ),
-        // zamiast słowa "Podopieczny" – imię + liczba dokumentów
         title: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -167,7 +158,6 @@ class _MemberDetailPageState extends State<MemberDetailPage> {
         children: [
           const SizedBox(height: 16),
 
-          // Nagłówek sekcji dokumentów
           const Padding(
             padding: EdgeInsets.symmetric(horizontal: 16.0),
             child: Align(
@@ -183,7 +173,6 @@ class _MemberDetailPageState extends State<MemberDetailPage> {
           ),
           const SizedBox(height: 8),
 
-          // 📄 Lista dokumentów z DocumentCubit
           Expanded(
             child: BlocBuilder<DocumentCubit, DocumentState>(
               builder: (context, state) {
@@ -212,7 +201,6 @@ class _MemberDetailPageState extends State<MemberDetailPage> {
                       final date = doc['visit_date'] ?? '';
                       final doctor = doc['doctor_name'] ?? '';
 
-                      // 🔍 odczyt typu pliku
                       final fileType = (doc['file_type'] ?? '').toString().toLowerCase();
                       final isImage = fileType.contains('jpg') ||
                           fileType.contains('jpeg') ||

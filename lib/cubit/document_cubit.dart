@@ -3,9 +3,6 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:appka/config/config.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:http/http.dart' as http;
-import 'package:file_picker/file_picker.dart';
-import 'package:firebase_storage/firebase_storage.dart';
-import 'dart:io';
 
 part "document_state.dart";
 
@@ -20,7 +17,6 @@ class DocumentCubit extends Cubit<DocumentState>{
       String? filename = documentData["filename"];
       String? fileType = documentData["file_type"];
 
-      // 1. Token i API
       final prefs = await SharedPreferences.getInstance();
       final token = prefs.getString('access_token');
       final body = {
@@ -36,8 +32,6 @@ class DocumentCubit extends Cubit<DocumentState>{
         'file_url': fileUrl,
         'ocr_text': documentData['ocr_text'] ?? "",
       };
-
-      print('📤 BODY wysyłane do /document/add: ${jsonEncode(body)}');
 
 
       final uri = Uri.parse('http://${ApiConfig.baseUrl}/document/add');
@@ -88,8 +82,6 @@ class DocumentCubit extends Cubit<DocumentState>{
         'ocr_text': documentData['ocr_text'] ?? "",
       };
 
-      print('✏️ BODY wysyłane do /document/update-document/$documentId: ${jsonEncode(body)}');
-
       final uri = Uri.parse(
         'http://${ApiConfig.baseUrl}/document/update-document/$documentId',
       );
@@ -113,7 +105,6 @@ class DocumentCubit extends Cubit<DocumentState>{
       emit(DocumentError(error: e, message: "Błąd edycji dokumentu"));
     }
   }
-
 
   Future<void> fetchDocumentsByPatientName(String firstName, String lastName) async {
     emit(const DocumentLoading());
@@ -190,7 +181,6 @@ class DocumentCubit extends Cubit<DocumentState>{
       );
 
       if (response.statusCode == 204) {
-        // odśwież listę dokumentów
         await fetchDocumentsByPatientName(firstName, lastName);
       } else {
         final error = jsonDecode(response.body)["detail"] ?? "Nieznany błąd";

@@ -1,5 +1,5 @@
-import 'package:flutter/material.dart';
-import 'package:flutter_pdfview/flutter_pdfview.dart';
+import "package:flutter/material.dart";
+import "package:flutter_pdfview/flutter_pdfview.dart";
 
 class PreviewPDFPage extends StatelessWidget {
   final String filePath;
@@ -22,18 +22,15 @@ class PreviewPDFPage extends StatelessWidget {
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            // Podgląd PDF
             SizedBox(
-              height: 500, // wysokość PDF
-              width: 400,  // szerokość PDF
+              height: 500,
+              width: 400,
               child: PDFView(filePath: filePath),
             ),
             const SizedBox(height: 10),
-            // Przyciskowa logika
             Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                // 1. Cofnij do Home
                 FloatingActionButton(
                   heroTag: "back",
                   onPressed: onBack,
@@ -41,7 +38,6 @@ class PreviewPDFPage extends StatelessWidget {
                   child: const Icon(Icons.close, color: Colors.white),
                 ),
                 const SizedBox(width: 20),
-                // 2. Wybierz inny PDF
                 FloatingActionButton(
                   heroTag: "pickAgain",
                   onPressed: onPickAgain,
@@ -49,7 +45,6 @@ class PreviewPDFPage extends StatelessWidget {
                   child: const Icon(Icons.attach_file, color: Colors.white),
                 ),
                 const SizedBox(width: 20),
-                // 3. Akceptuj PDF
                 FloatingActionButton(
                   heroTag: "approve",
                   onPressed: onApprove,

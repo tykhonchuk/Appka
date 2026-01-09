@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+import "package:flutter/material.dart";
 
 class WelcomeSliverHeader extends StatelessWidget {
   final String userFirstName;
@@ -10,7 +10,6 @@ class WelcomeSliverHeader extends StatelessWidget {
     return SliverAppBar(
       backgroundColor: Colors.transparent,
       expandedHeight: 70,
-      //collapsedHeight: 60,
       elevation: 0,
       pinned: false,
       floating: true,
@@ -19,7 +18,7 @@ class WelcomeSliverHeader extends StatelessWidget {
         background: Container(
           width: double.infinity,
           padding: const EdgeInsets.only(
-            top: 40,   // ⬅️ zwiększony odstęp od góry (było ~16)
+            top: 40,
             left: 16,
             right: 16,
             bottom: 20,
@@ -46,11 +45,11 @@ class WelcomeSliverHeader extends StatelessWidget {
                 "Cześć, $userFirstName!",
                 style: const TextStyle(
                   color: Colors.white,
-                  fontSize: 22,  // lekko większy
+                  fontSize: 22,
                   fontWeight: FontWeight.bold,
                 ),
               ),
-              const SizedBox(height: 6), // ⬅️ większy odstęp
+              const SizedBox(height: 6),
               const Text(
                 "Miło Cię znowu widzieć",
                 style: TextStyle(

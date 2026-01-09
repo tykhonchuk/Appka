@@ -32,7 +32,6 @@ class _LoginPageState extends State<LoginPage> {
           body: SingleChildScrollView(
             child: Column(
               children: [
-                // Gradientowy nagłówek
                 Container(
                   width: double.infinity,
                   padding: const EdgeInsets.symmetric(vertical: 40, horizontal: 20),
@@ -79,7 +78,6 @@ class _LoginPageState extends State<LoginPage> {
 
                 const SizedBox(height: 30),
 
-                // Pola logowania
                 Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 20.0),
                   child: Column(
@@ -108,7 +106,6 @@ class _LoginPageState extends State<LoginPage> {
                       ),
                       const SizedBox(height: 30),
 
-                      // Przycisk logowania
                       BlocBuilder<LoginCubit, LoginState>(
                         builder: (context, state) {
                           final cubit = context.read<LoginCubit>();
@@ -143,7 +140,6 @@ class _LoginPageState extends State<LoginPage> {
 
                       const SizedBox(height: 20),
 
-                      // Dolny tekst z możliwością przejścia do rejestracji
                       Row(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [

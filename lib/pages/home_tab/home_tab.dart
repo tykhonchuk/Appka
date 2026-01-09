@@ -1,24 +1,22 @@
-import 'dart:io';
-
-import 'package:appka/config/pages_route.dart';
-import 'package:appka/cubit/document_cubit.dart';
-import 'package:appka/cubit/ocr_cubit.dart';
-import 'package:appka/cubit/profile_cubit.dart';
-import 'package:appka/pages/camera_page.dart';
-import 'package:appka/pages/home_tab/documents_list.dart';
-import 'package:appka/pages/home_tab/floating_actions.dart';
-import 'package:appka/pages/home_tab/welcome_sliver_header.dart';
-import 'package:appka/pages/home_tab/documents_filter_bar.dart';
-import 'package:appka/pages/preview_pdf_page.dart';
-import 'package:appka/pages/preview_photo_page.dart';
-
-import 'package:camera/camera.dart';
-import 'package:file_picker/file_picker.dart';
-import 'package:firebase_auth/firebase_auth.dart';
-import 'package:flutter/material.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:go_router/go_router.dart';
-import 'package:image_picker/image_picker.dart';
+import "dart:io";
+import "package:appka/config/pages_route.dart";
+import "package:appka/cubit/document_cubit.dart";
+import "package:appka/cubit/ocr_cubit.dart";
+import "package:appka/cubit/profile_cubit.dart";
+import "package:appka/pages/camera_page.dart";
+import "package:appka/pages/home_tab/documents_list.dart";
+import "package:appka/pages/home_tab/floating_actions.dart";
+import "package:appka/pages/home_tab/welcome_sliver_header.dart";
+import "package:appka/pages/home_tab/documents_filter_bar.dart";
+import "package:appka/pages/preview_pdf_page.dart";
+import "package:appka/pages/preview_photo_page.dart";
+import "package:camera/camera.dart";
+import "package:file_picker/file_picker.dart";
+import "package:firebase_auth/firebase_auth.dart";
+import "package:flutter/material.dart";
+import "package:flutter_bloc/flutter_bloc.dart";
+import "package:go_router/go_router.dart";
+import "package:image_picker/image_picker.dart";
 
 class HomeTab extends StatefulWidget {
   const HomeTab({super.key});
@@ -35,11 +33,9 @@ class _HomeTabState extends State<HomeTab> {
   String userLastName = "";
   List<Map<String, dynamic>> userDocuments = [];
 
-  // 🔍 wyszukiwanie
   final TextEditingController _searchController = TextEditingController();
   String _searchQuery = '';
 
-  // ✅ nowe filtry (checkboxy)
   List<String> _selectedDoctors = [];
   List<String> _selectedDiagnoses = [];
   List<String> _selectedTypes = [];
@@ -64,7 +60,7 @@ class _HomeTabState extends State<HomeTab> {
       try {
         final userCredential =
         await FirebaseAuth.instance.signInAnonymously();
-        print('Zalogowano anonimowo. UID: ${userCredential.user?.uid}');
+        //print('Zalogowano anonimowo. UID: ${userCredential.user?.uid}');
       } catch (e) {
         print('Błąd logowania anonimowego: $e');
       }
@@ -104,10 +100,6 @@ class _HomeTabState extends State<HomeTab> {
       setState(() => userDocuments = state.documents);
     }
   }
-
-  // ======================
-  // ✅ DANE DO FILTRÓW
-  // ======================
 
   List<String> get _availableDoctors {
     final set = <String>{};
@@ -150,14 +142,9 @@ class _HomeTabState extends State<HomeTab> {
     }
   }
 
-  // ======================
-  // ✅ FILTROWANIE
-  // ======================
-
   List<Map<String, dynamic>> get _filteredDocuments {
     List<Map<String, dynamic>> docs = List.from(userDocuments);
 
-    // 🔍 tekst
     if (_searchQuery.isNotEmpty) {
       final q = _searchQuery.toLowerCase();
       docs = docs.where((doc) {
@@ -182,7 +169,6 @@ class _HomeTabState extends State<HomeTab> {
             date.contains(q);
       }).toList();
     }
-    // 📅 filtr po dacie (dd/MM/yyyy)
     if (_dateFrom != null || _dateTo != null) {
       docs = docs.where((doc) {
         final dateStr = (doc['visit_date'] ?? '').toString();
@@ -203,7 +189,6 @@ class _HomeTabState extends State<HomeTab> {
       }).toList();
     }
 
-    // 👨‍⚕️ lekarz
     if (_selectedDoctors.isNotEmpty) {
       docs = docs.where((doc) {
         final name = (doc['doctor_name'] ?? '').toString();
@@ -211,7 +196,6 @@ class _HomeTabState extends State<HomeTab> {
       }).toList();
     }
 
-    // 🧾 diagnoza
     if (_selectedDiagnoses.isNotEmpty) {
       docs = docs.where((doc) {
         final diag = (doc['diagnosis'] ?? '').toString();
@@ -219,7 +203,6 @@ class _HomeTabState extends State<HomeTab> {
       }).toList();
     }
 
-    // 📄 typ dokumentu
     if (_selectedTypes.isNotEmpty) {
       docs = docs.where((doc) {
         final type = (doc['document_type'] ?? '').toString();
@@ -229,10 +212,6 @@ class _HomeTabState extends State<HomeTab> {
 
     return docs;
   }
-
-  // ======================
-  // 📸 Kamera / galeria / PDF
-  // ======================
 
   Future<void> _pickImageFromCamera(BuildContext context) async {
     if (_cameras.isEmpty) {
@@ -371,10 +350,6 @@ class _HomeTabState extends State<HomeTab> {
       ),
     );
   }
-
-  // ======================
-  // 🧩 UI
-  // ======================
 
   @override
   Widget build(BuildContext context) {

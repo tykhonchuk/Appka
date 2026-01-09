@@ -1,6 +1,6 @@
-import 'package:flutter/material.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:appka/cubit/family_cubit.dart';
+import "package:flutter/material.dart";
+import "package:flutter_bloc/flutter_bloc.dart";
+import "package:appka/cubit/family_cubit.dart";
 
 class EditFamilyMemberPage extends StatefulWidget {
   final Map<String, dynamic> member;
@@ -47,7 +47,6 @@ class _EditFamilyMemberPageState extends State<EditFamilyMemberPage> {
 
     Navigator.pop(context, updated);
   }
-
 
   @override
   Widget build(BuildContext context) {

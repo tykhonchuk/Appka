@@ -58,7 +58,6 @@ class FamilyCubit extends Cubit<FamilyState> {
       );
 
       if (response.statusCode == 201 || response.statusCode == 200) {
-        // po dodaniu od razu pobieramy zaktualizowaną listę
         await fetchFamilyMembers();
         emit(const FamilyAddSuccess());
       } else {
@@ -98,7 +97,6 @@ class FamilyCubit extends Cubit<FamilyState> {
 
       if (response.statusCode == 200) {
         await fetchFamilyMembers();
-        //emit(const FamilyEditSuccess());
       } else {
         emit(FamilyError(
           message: "Nie udało się zaktualizować danych",
@@ -110,13 +108,11 @@ class FamilyCubit extends Cubit<FamilyState> {
     }
   }
 
-
   Future<void> deleteMember(int memberId) async {
     emit(const FamilyLoading());
     try {
       final prefs = await SharedPreferences.getInstance();
       final token = prefs.getString('access_token');
-
 
       final uri = Uri.parse(
         'http://${ApiConfig.baseUrl}/family/delete-member/$memberId',
@@ -132,7 +128,6 @@ class FamilyCubit extends Cubit<FamilyState> {
 
       if (response.statusCode == 204 || response.statusCode == 200) {
         await fetchFamilyMembers();
-        //emit(const FamilyDeleteSuccess());
       } else {
         final body = response.body.isNotEmpty ? response.body : '';
         emit(FamilyError(
@@ -147,6 +142,4 @@ class FamilyCubit extends Cubit<FamilyState> {
       ));
     }
   }
-
-
 }

@@ -14,7 +14,7 @@ class ProfilePage extends StatefulWidget {
 class _ProfilePageState extends State<ProfilePage> {
   String firstName = "";
   String lastName = "";
-  String email = "john.doe@email.com";
+  String email = "";
   int documents = 100;
   int members = 101;
   int mbUsed = 102;
@@ -43,7 +43,6 @@ class _ProfilePageState extends State<ProfilePage> {
         });
       }
     } catch (e) {
-      // jeśli nie uda się pobrać imienia, możesz ustawić np. "Użytkownik"
       setState(() {
         firstName = "Użytkownik";
       });
@@ -59,11 +58,10 @@ class _ProfilePageState extends State<ProfilePage> {
         setState(() {
           documents = state.documents;
           members = state.members;
-          mbUsed = 25;
+          mbUsed = 0;
         });
       }
     }catch (e) {
-      // jeśli nie uda się pobrać imienia, możesz ustawić np. "Użytkownik"
       setState(() {
         documents = 0;
         members = 0;
@@ -99,7 +97,6 @@ class _ProfilePageState extends State<ProfilePage> {
     );
   }
 
-  // Funkcja tworząca spójny przycisk
   Widget _buildProfileButton({
     required String text,
     required VoidCallback onPressed,
@@ -172,7 +169,6 @@ class _ProfilePageState extends State<ProfilePage> {
         child: Scaffold(
           body: Column(
             children: [
-              // Nagłówek
               Container(
                 width: double.infinity,
                 padding: const EdgeInsets.symmetric(vertical: 40),
@@ -219,7 +215,6 @@ class _ProfilePageState extends State<ProfilePage> {
                       ),
                     ),
                     const SizedBox(height: 20),
-                    // Karty z danymi
                     Container(
                       margin: const EdgeInsets.symmetric(horizontal: 20),
                       padding: const EdgeInsets.all(15),
@@ -247,7 +242,6 @@ class _ProfilePageState extends State<ProfilePage> {
                 ),
               ),
               const SizedBox(height: 20),
-              // Przyciski
           _buildProfileButton(
             text: "Edytuj profil",
             icon: Icons.edit_outlined,
@@ -279,7 +273,6 @@ class _ProfilePageState extends State<ProfilePage> {
               _confirmLogout(context);
             },
           ),
-
             ],
           ),
         ),

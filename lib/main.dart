@@ -36,7 +36,6 @@ void main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
   try {
-    // 🔥 Próba inicjalizacji z firebase_options.dart
     await Firebase.initializeApp(
       options: DefaultFirebaseOptions.currentPlatform,
     );
@@ -44,13 +43,10 @@ void main() async {
     if (e.code == 'duplicate-app') {
       print('Firebase już zainicjalizowany, używam istniejącej instancji.');
     } else {
-      rethrow; // inny błąd – nie ignorujemy
+      rethrow;
     }
   }
   final app = Firebase.app();
-  print('🔥 Firebase app: ${app.name}');
-  print('🔥 projectId: ${app.options.projectId}');
-  print('🔥 storageBucket z options: ${app.options.storageBucket}');
   await FirebaseAuth.instance.signInAnonymously();
 
 

@@ -1,10 +1,10 @@
-import 'dart:io';
-import 'package:appka/config/pages_route.dart';
-import 'package:appka/cubit/document_cubit.dart';
-import 'package:appka/cubit/firebase_storage_cubit.dart';
-import 'package:flutter/material.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:go_router/go_router.dart';
+import "dart:io";
+import "package:appka/config/pages_route.dart";
+import "package:appka/cubit/document_cubit.dart";
+import "package:appka/cubit/firebase_storage_cubit.dart";
+import "package:flutter/material.dart";
+import "package:flutter_bloc/flutter_bloc.dart";
+import "package:go_router/go_router.dart";
 
 class EditDocumentPage extends StatefulWidget {
   final Map<String, dynamic>? initialData;
@@ -84,10 +84,6 @@ class _EditDocumentPageState extends State<EditDocumentPage> {
     docTypeController.dispose();
     super.dispose();
   }
-
-  // ██████████████████████████████████████
-  // „ŁADNY” DROPDOWN – JAK TEXTFIELD
-  // ██████████████████████████████████████
 
   Widget _buildDocTypeField() {
     return Column(
@@ -177,10 +173,6 @@ class _EditDocumentPageState extends State<EditDocumentPage> {
       ],
     );
   }
-
-  // ██████████████████████████████████████
-  //               BUILD
-  // ██████████████████████████████████████
 
   @override
   Widget build(BuildContext context) {

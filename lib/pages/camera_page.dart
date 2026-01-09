@@ -1,7 +1,6 @@
 import "dart:io";
 import "package:appka/config/pages_route.dart";
 import "package:appka/cubit/ocr_cubit.dart";
-import "package:appka/pages/home_page.dart";
 import "package:flutter/material.dart";
 import "package:camera/camera.dart";
 import "package:flutter_bloc/flutter_bloc.dart";
@@ -50,7 +49,6 @@ class _CameraScreenState extends State<CameraScreen> {
     try {
       final image = await _controller.takePicture();
 
-      // przekazujemy dane do PreviewPhotoPage przez GoRouter
       context.push(
         PagesRoute.previewPhotoPage.path,
         extra: {
@@ -101,16 +99,8 @@ class _CameraScreenState extends State<CameraScreen> {
                 children: [
                   FloatingActionButton(
                     heroTag: 'close_camera_button',
-                    onPressed:(){ //context.go(PagesRoute.homePage.path);
+                    onPressed:(){
                       context.pop();
-                      // final home = HomePage.of(context);
-                      // if (home != null) {
-                      //   home.setIndex(0); // HomeTab
-                      //   Navigator.of(context).popUntil((route) => route.isFirst);
-                      // } else {
-                      //   // Jeśli HomePage nie istnieje, stwórz nową instancję
-                      //   context.go(PagesRoute.homePage.path, extra: 0);
-                      // }
                     },
                     backgroundColor: Colors.white,
                     child: const Icon(Icons.close, color: Colors.blueAccent, size: 32),

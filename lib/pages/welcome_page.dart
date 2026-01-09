@@ -22,7 +22,6 @@ class WelcomePage extends StatelessWidget {
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              // Ikona szpitala / lekarza
               const Icon(
                 Icons.local_hospital,
                 size: 100,
@@ -30,7 +29,6 @@ class WelcomePage extends StatelessWidget {
               ),
               const SizedBox(height: 20),
 
-              // Powitalny napis
               const Text(
                 "Witaj w HealthPocket!",
                 style: TextStyle(
@@ -49,7 +47,6 @@ class WelcomePage extends StatelessWidget {
               ),
               const SizedBox(height: 16),
 
-              // Opis funkcjonalności
               const Padding(
                 padding: EdgeInsets.symmetric(horizontal: 40),
                 child: Text(
@@ -63,7 +60,6 @@ class WelcomePage extends StatelessWidget {
               ),
               const SizedBox(height: 40),
 
-              // Przycisk logowania
               SizedBox(
                 width: 200,
                 height: 50,
@@ -90,7 +86,6 @@ class WelcomePage extends StatelessWidget {
               ),
               const SizedBox(height: 16),
 
-              // Przycisk rejestracji
               SizedBox(
                 width: 200,
                 height: 50,

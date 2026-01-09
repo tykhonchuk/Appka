@@ -57,8 +57,6 @@ class _ChangePasswordPageState extends State<ChangePasswordPage> {
   @override
   Widget build(BuildContext context) {
     return BlocProvider(
-      // jeśli masz ProfileCubit w MultiBlocProvider w main.dart,
-      // możesz to usunąć i używać istniejącego Cubita
       create: (_) => ProfileCubit(),
       child: BlocListener<ProfileCubit, ProfileState>(
         listener: (context, state) {

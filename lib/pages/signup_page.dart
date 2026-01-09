@@ -46,7 +46,6 @@ class _SignupPageState extends State<SignupPage> {
           body: SingleChildScrollView(
             child: Column(
               children: [
-                // Gradientowy nagłówek
                 Container(
                   width: double.infinity,
                   padding: const EdgeInsets.symmetric(vertical: 40, horizontal: 20),
@@ -155,7 +154,6 @@ class _SignupPageState extends State<SignupPage> {
                       ),
                       const SizedBox(height: 30),
 
-                      // Gradientowy przycisk rejestracji
                       BlocBuilder<SignupCubit, SignupState>(
                         builder: (context, state) {
                           final cubit = context.read<SignupCubit>();
@@ -205,7 +203,6 @@ class _SignupPageState extends State<SignupPage> {
 
                       const SizedBox(height: 20),
 
-                      // Dolny tekst z przejściem do logowania
                       Row(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [

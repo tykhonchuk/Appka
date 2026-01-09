@@ -1,5 +1,5 @@
-import 'dart:io';
-import 'package:flutter/material.dart';
+import "dart:io";
+import "package:flutter/material.dart";
 
 class PreviewPhotoPage extends StatelessWidget {
   final String imagePath;
@@ -32,7 +32,6 @@ class PreviewPhotoPage extends StatelessWidget {
             Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                // 1. Wróć na główną stronę
                 FloatingActionButton(
                   heroTag: "back",
                   onPressed: onBack,
@@ -40,7 +39,6 @@ class PreviewPhotoPage extends StatelessWidget {
                   child: const Icon(Icons.close, color: Colors.white),
                 ),
                 const SizedBox(width: 20),
-                // 2. Ponów zdjęcie / kamera
                 FloatingActionButton(
                   heroTag: "retake",
                   onPressed: onRetake,
@@ -48,7 +46,6 @@ class PreviewPhotoPage extends StatelessWidget {
                   child: const Icon(Icons.refresh, color: Colors.white),
                 ),
                 const SizedBox(width: 20),
-                // 3. Akceptuj zdjęcie
                 FloatingActionButton(
                   heroTag: "accept",
                   onPressed: onAccept,

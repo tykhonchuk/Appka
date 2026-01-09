@@ -28,13 +28,11 @@ class _EditProfilePageState extends State<EditProfilePage> {
     final cubit = context.read<ProfileCubit>();
     final state = cubit.state;
 
-    // jeśli dane są już w pamięci – wypełnij od razu
     if (state is ProfileUserLoaded) {
       firstCtrl.text = state.firstName;
       lastCtrl.text = state.lastName;
       emailCtrl.text = state.username;
     } else {
-      // jeśli nie – dociągnij z backendu
       cubit.fetchUser();
     }
   }

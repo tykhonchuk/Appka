@@ -38,18 +38,13 @@ class DocumentsList extends StatelessWidget {
           ),
           subtitle: Text("Lekarz: ${doc['doctor_name'] ?? '-'}"),
           onTap: () async {
-            // ⬇ przechodzimy do szczegółów i czekamy na wynik
             final deleted = await context.push<bool>(
               PagesRoute.documentDetailsPage.path,
               extra: doc,
             );
 
-            // jeśli na ekranie szczegółów dokument został usunięty
             if (deleted == true) {
-              // przeładuj listę w HomeTab (np. _loadUserDocuments)
               onDelete();
-
-              // opcjonalny komunikat
               ScaffoldMessenger.of(context).showSnackBar(
                 const SnackBar(content: Text("Dokument został usunięty")),
               );

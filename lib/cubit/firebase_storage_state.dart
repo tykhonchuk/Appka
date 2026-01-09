@@ -13,8 +13,6 @@ class FirebaseLoading extends FirebaseState {
   const FirebaseLoading();
 }
 
-
-
 class FirebaseSuccess extends FirebaseState {
   const FirebaseSuccess([this.token]);
   final String? token;

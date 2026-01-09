@@ -9,7 +9,6 @@ part "profile_state.dart";
 class ProfileCubit extends Cubit<ProfileState> {
   ProfileCubit() : super(const ProfileInitial());
 
-  /// Pobiera zapisany token z pamięci urządzenia
   Future<String?> _getToken() async {
     final prefs = await SharedPreferences.getInstance();
     return prefs.getString('access_token');
@@ -78,7 +77,6 @@ class ProfileCubit extends Cubit<ProfileState> {
       );
 
       if (response.statusCode == 200 || response.statusCode == 204) {
-        //delete token from memory
         final prefs = await SharedPreferences.getInstance();
         await prefs.remove('access_token');
 
@@ -155,7 +153,6 @@ class ProfileCubit extends Cubit<ProfileState> {
       if (response.statusCode == 200) {
         emit(const ProfileSuccess());
 
-        // 🔥 odśwież dane + EMITUJ NOWY STATE
         await fetchUser();
       } else {
         final data = jsonDecode(response.body);
@@ -196,6 +193,4 @@ class ProfileCubit extends Cubit<ProfileState> {
       emit(ProfileError(message: "Błąd pobierania statystyk", error: e));
     }
   }
-
-
 }

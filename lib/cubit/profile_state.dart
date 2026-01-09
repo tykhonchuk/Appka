@@ -39,7 +39,6 @@ class ProfileStatsLoaded extends ProfileState {
   });
 }
 
-
 class ProfileSuccess extends ProfileState {
   const ProfileSuccess([this.token]);
   final String? token;

@@ -25,7 +25,6 @@ class OcrCubit extends Cubit<OcrState> {
 
         final text = decoded["text"] ?? "";
         final extractedData = decoded["extracted_data"] ?? {};
-        print("📄 OCR extracted: $extractedData");
 
         emit(OcrSuccess(text: text, extractedData: extractedData));
       } else {

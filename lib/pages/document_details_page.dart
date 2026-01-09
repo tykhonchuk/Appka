@@ -1,12 +1,12 @@
-import 'dart:io';
-import 'package:appka/config/pages_route.dart';
-import 'package:flutter/material.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:go_router/go_router.dart';
-import 'package:flutter_pdfview/flutter_pdfview.dart';
-import 'package:http/http.dart' as http;
-import 'package:path_provider/path_provider.dart';
-import '../cubit/document_cubit.dart';
+import "dart:io";
+import "package:appka/config/pages_route.dart";
+import "package:flutter/material.dart";
+import "package:flutter_bloc/flutter_bloc.dart";
+import "package:go_router/go_router.dart";
+import "package:flutter_pdfview/flutter_pdfview.dart";
+import "package:http/http.dart" as http;
+import "package:path_provider/path_provider.dart";
+import "../cubit/document_cubit.dart";
 
 class DocumentDetailsPage extends StatelessWidget {
   final Map<String, dynamic> document;
@@ -45,7 +45,6 @@ class DocumentDetailsPage extends StatelessWidget {
       children: [
         const SizedBox(height: 16),
 
-        // ✅ Informacja, że plik jest załączony
         const Row(
           children: [
             Icon(Icons.attach_file, color: Colors.green),
@@ -63,7 +62,6 @@ class DocumentDetailsPage extends StatelessWidget {
 
         const SizedBox(height: 10),
 
-        // ✅ Klikalny podgląd
         GestureDetector(
           onTap: () {
             _showFullScreenPreview(context, fileUrl, fileType);
@@ -106,7 +104,6 @@ class DocumentDetailsPage extends StatelessWidget {
     const contentFactor = 0.8; // 80% ekranu
 
     if (fileType.toLowerCase().contains('pdf')) {
-      // --- PDF ---
       final response = await http.get(Uri.parse(fileUrl));
       final dir = await getTemporaryDirectory();
       final file = File('${dir.path}/temp_preview.pdf');
@@ -123,7 +120,6 @@ class DocumentDetailsPage extends StatelessWidget {
             insetPadding: EdgeInsets.zero,
             child: Stack(
               children: [
-                // szare półprzezroczyste tło
                 GestureDetector(
                   onTap: () => Navigator.of(context).pop(),
                   child: Container(
@@ -131,7 +127,6 @@ class DocumentDetailsPage extends StatelessWidget {
                   ),
                 ),
 
-                // okno z PDF – 80% ekranu
                 Center(
                   child: FractionallySizedBox(
                     widthFactor: contentFactor,
@@ -143,7 +138,6 @@ class DocumentDetailsPage extends StatelessWidget {
                   ),
                 ),
 
-                // przycisk zamknięcia
                 Positioned(
                   top: 40,
                   right: 20,
@@ -164,7 +158,6 @@ class DocumentDetailsPage extends StatelessWidget {
         },
       );
     } else {
-      // --- OBRAZ ---
       showDialog(
         context: context,
         barrierDismissible: true,
@@ -219,9 +212,6 @@ class DocumentDetailsPage extends StatelessWidget {
     }
   }
 
-
-
-
   Future<void> _handleDelete(BuildContext context) async {
     final confirm = await showDialog<bool>(
       context: context,
@@ -262,8 +252,6 @@ class DocumentDetailsPage extends StatelessWidget {
 
       if (!context.mounted) return;
 
-      // jeśli usunięcie się powiodło, DocumentCubit już odświeżył listę,
-      // więc możemy wrócić do poprzedniego ekranu
       Navigator.of(context).pop(true);
 
       ScaffoldMessenger.of(context).showSnackBar(
@@ -276,7 +264,6 @@ class DocumentDetailsPage extends StatelessWidget {
       );
     }
   }
-
 
   @override
   Widget build(BuildContext context) {
@@ -335,7 +322,6 @@ class DocumentDetailsPage extends StatelessWidget {
                       elevation: 3,
                     ),
                     onPressed: () {
-                      // Tutaj logika przejścia do edycji dokumentu
                       context.push(PagesRoute.editDocumentPage.path, extra: document);
                     },
                   ),
