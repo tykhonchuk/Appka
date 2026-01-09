@@ -46,7 +46,7 @@ class LoginCubit extends Cubit<LoginState>{
       }
 
     } catch (e){
-      emit(LoginError(error: e, message: "Błąd połaczenia z serwerem"));
+      emit(LoginError(error: e, message: "Błąd połaczenia z serwerem: $e"));
     }
   }
 

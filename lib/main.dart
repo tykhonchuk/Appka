@@ -142,6 +142,7 @@ void main() async {
         BlocProvider(create: (_) => FamilyCubit()),
       ],
       child: MaterialApp.router(
+        debugShowCheckedModeBanner: false,
         routerConfig: goRoute,
         theme: themeLight,
         darkTheme: themeDark,

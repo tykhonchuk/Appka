@@ -40,6 +40,7 @@ class WelcomeSliverHeader extends StatelessWidget {
           ),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
+            mainAxisSize: MainAxisSize.min,
             children: [
               Text(
                 "Cześć, $userFirstName!",
